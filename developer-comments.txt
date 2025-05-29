@@ -9,42 +9,46 @@
 
 //Develop application structure
 
+##### List of Instruments and Ranges Planned for Final Version #####
 
-question - do I want to use "unison" where the sounding pitches are exactly the same, for example a trombone would play "high Bb" while a trumpet plays "low [concert] Bb" to achieve a unison pitch, or do I want to use "unison" as it is normally used in band context: each instrument plays in it's "normal" octave. So "low" concert Bb is like the bottom note of the Bb scale that we all play as a warmup, even though that technically means 4 different octaves (tuba, bari sax, alto sax, flute, for example). 
+piccolo, 
+flute, 
+oboe, 
+clarinet, 
+bass clarinet, 
+bassoon, 
+alto sax, 
+tenor sax, 
+bari sax,
+trumpet, 
+french horn, 
+trombone, 
+baritone/euphonium, 
+tuba, 
+timpani,
+grand piano (16)
 
-my gut reaction - use the "normal band definition". If I want to tune Unison Bb, I'm really talking about any octave. 
+##### File Size Considerations #####
 
-So if the first Random note is flute Bb 5 (their "low" Bb), I want the second random note to either be flute Bb5, alto/ten/tpt/clar Bb4, bari/bcl/tbn/bar Bb3, and tuba Bb2. Right?
+A 5-second .mp3 file at 128 kbps is about .5 MB. Since I am planning to record two notes for each pitch, the total file size for each instrument would equal 1MB per note in their full chromatic scale. Piano has the most at 88MB, a 2-octave chromatic scale would be 25MB.
 
-Brainstorm:
+ 
+##### Design Choice: "True Unison" or "Normal Octaves" Option #####
 
-two modes. One is "true unison" - instruments get their actual sounding pitches, like Bb3 for tenor voices, then it would have to be another tenor voice or a bass voice.
-the second is "normal octaves" - Bb3 on tenor voice would be Bb 4 in alto voices or Bb 5 in soprano voices.
-This does present a difficulty and a limitation.
-Not all instruments have the same range, obviously. A trumpet can play to concert E below their "starting" Bb, but a clarinet can play to D below that Bb. Clarinets can also play up into the flute registers with much less difficulty than trumpets. Also, do we top off the range at a high Bb for trumpet? Or go all the way to high F above that? another design decision...
+True unison means the exact sounding pitch: Bb4 and Bb4. Normal Octaves means that Bb4 is "low" for one instrument and Bb5 is "low" for another, so the "low Bb" could mean different octaves depending on the instrument. This is normal in a concert band context.
 
-But, the difficulty: what about French horn? The "starting" French horn note is not really as easy as "concert Bb" - they have to choose bottom space F or under the staff F. It's kind of like tenor sax. They (unfortunately) start on 3rd space C, and then learn to go higher! But then they frequently play lower in band music once you get out of the method book.
+There are five main groupings in this project. Lowest: tuba. Low: bass clarinet, bassoon, bari sax, trombone, baritone. Medium: clarinet, alto sax, tenor sax, trumpet, french horn. High: flute, oboe. Highest: piccolo.
 
-Ahh, the target audience. Not 5th graders, not 6th graders, but really introduced to 7th grade and a focus in 9th-12th grade. 
+The design solution is to have an option where users can toggle between "true unison" and "normal octaves". True unison would limit the secondary pitch to instruments that can play 
+in the same octave. (See #Select Compatible Second Instrument# in chatgpt.txt file.) Normal Octaves would allow the secondary pitch to be a different octave, but generally in the same register of both instruments such as "low", "middle", or "high".
 
-I still think: yes - one mode that is true unison, maybe a good place to start. Then, another mode that is normal octaves - i need some metadata for this though. Something that normalizes octaves... Bb4 on trumpet is Bb5 on flute, so flute is +1 octave. Bb3 on trombone is Bb4 on trumpet, so trombone is -1 octave. Bb2 on tuba, so -2 octaves. Something like octavenormalize: 0 (or -1, -2, +1) then my logic can use something to parse the current int from Bb5, add octavenormalize (-1), return Bb4 as the filename to use?
+To normalize octaves, the logic would use instrument metadata. (See #Example Metadata Format# in chatgpt.txt file.) Using the Medium instruments as reference, Low instruments would be -1 octave, Lowest would be -2, High would be +1, and Highest would be +2. A normalizeOctave(primaryInstr, secondaryInstr) function would parse the octave number from the soundfile of both instruments and find the octave number of the secondary instrument by subtracting primaryInstr.octave from secondaryInstr.octave. For example, normalizeOctave(flute, tuba) would result in [(-2) - (1)] = -3, and the flute's Bb5 would be paired with the tuba's Bb2, both in the "low" register of each instrument. The opposite would also work: normalizeOctave(tuba, flute) would result in [(1) - (-2)] = 3, and the tuba's Bb2 would be paired with the flute's Bb5.
 
-But what if the first instrument is flute and the second instrument is Tuba? How will it know Bb5 and Bb2? Well, flute.octave is +1, tuba.octave is -2, so we would subtract flute.octave and add tuba.octave [-(1) + (-2)] = -3, so the Bb5 becomes Bb2.
-But if the first instrument is tuba and the second is Flute, does that still work?
-Subtract tuba.octave and add flute.octave [-(-2) + 1] = 3, so Bb2 becomes Bb5 ✅
+There may still be some issues to work through surrounding certain instruments like French horn. If "low" concert Bb is first space F for horn, putting it in the Medium category, what happens when the primary pitch randomizes as French Horn's low Bb (concert Eb) - an easy note for beginning horn players, but impossible for any other brass instrument? If the user also selects "French Horn" for primary and "Brass" for secondary, there would need to be a logic check in picking the primary pitch that excludes any notes that aren't in the secondary group. {!} OR {!} logic that prefers normalized octaves, but can also fall back on true unisons or alternate octaves. For example, if low Bb (Eb3) is picked for horn, trumpet's first space F (Eb4) could be picked for the secondary pitch.
 
-French horn is where it gets tricky though. Bb4 is their 4th space F, Bb3 is under the staff low F. We expect 5th grade trumpets to get up to Bb5, but never horns to get that high (their top line F) - if trumpet plays low C written, what do french horns play? definitely 1st space F. - Yeah, I guess we just put french horn in that "octave: 0" group, even though they can definitely play some of the same notes as trombone/baritone. Tenor sax would follow the same rule, in the octave:0 group, even though a lot of times in music they are playing in unison or close harmony with the trombones.
+##### Design Choice: Scope of Project Limited to Unisons and Octaves #####
 
-#####
+The goal of this website is to train students to tune unisons and octaves. Other intervals, such as 5ths or 3rds, are outside the scope of this website. It may be grounds for a future project instead.
 
-Okay, so we have octaves figured out! Do we want to use 5ths, 3rds? ... no, I think that is beyond the scope of this website. The idea here is to help students tune unisons and octaves, not yet worry about interval tuning.
-
-#####
-
-There was a nagging thought... I don't mind having the "true unison" button, I think that's great. Or "normal octaves", that's good too. But there was something that just didn't sit right while I typed all that out up above.
-
-I think it has to do with this:
-If I still have the "reference instrument choice" and the "question instrument choice", where users can check boxes to include various instruments... like [x]flute for reference and [x]any for question.
-Well, it's going to pick a flute pitch from the full range of the flute, right? What if it picks like High C (C8?)? What other instruments from [x]any can play that high? Well, only the flute - actually, I'm thinking about making "piano" an option here, too. Band instruments have to learn to play in tune with pianos for solos, right? But then we have to "randomly" select only the flute if that note is only in that one instrument's range (or piano and flute, since I have my solution, but still...)
 
 
