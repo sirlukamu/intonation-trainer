@@ -1,0 +1,218 @@
+intonation-trainer/
+├── index.html
+├── style.css
+├── script.js
+├── assets/
+│   ├── audio/
+│   │   ├── trumpet/C4.wav
+│   │   ├── trumpet/D4.wav
+│   │   ├── flute/C4.wav
+│   │   └── ...
+│   └── images/
+│       ├── logo.svg
+│       ├── icons/
+│       └── ...
+├── data/
+│   └── intervals.json
+└── README.md
+
+##### Web Audio API: Overlapping & Pitch Shifting Example #####
+
+// Setup audio context
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// Load and decode audio file
+async function loadAudio(url) {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  return await audioCtx.decodeAudioData(arrayBuffer);
+}
+
+// Play a sound with detuning and optional offset
+function playDetunedSound(buffer, detuneCents = 0, offset = 0, fadeOut = false) {
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+
+  // Detune by cents (100 cents = 1 semitone)
+  source.detune.value = detuneCents;
+
+  // Optional fade out
+  let gainNode = audioCtx.createGain();
+  if (fadeOut) {
+    gainNode.gain.setValueAtTime(1, audioCtx.currentTime + offset);
+    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + offset + 0.5); // Fade out over 0.5s
+  }
+
+  source.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  source.start(audioCtx.currentTime + offset);
+}
+
+##### Adding Functionality to Play and Audio File and Apply Pitch Shifting #####
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Test</title>
+</head>
+<body>
+    <button id="original">Original</button>
+    <button id="detuned">Detuned</button>
+
+    <script>
+        const originalBtn = document.querySelector("#original");
+        const detunedBtn = document.querySelector("#detuned");
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let audioBuffer = null;
+
+        // Load the audio file
+        fetch("trumpet-bb4.mp3")
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+            .then(decoded => {
+                audioBuffer = decoded;
+            })
+            .catch(err => console.error("Error loading audio:", err));
+
+        function playAudio(detuneCents = 0) {
+            if (!audioBuffer) return;
+
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+
+            // Apply pitch shift
+            const detuneRatio = Math.pow(2, detuneCents / 1200);
+            source.playbackRate.value = detuneRatio;
+
+            // Connect to output
+            source.connect(audioContext.destination);
+            source.start();
+        }
+
+        originalBtn.addEventListener("click", () => {
+            playAudio(0); // No detuning
+        });
+
+        detunedBtn.addEventListener("click", () => {
+            playAudio(25); // Detune up by 25 cents
+        });
+    </script>
+</body>
+</html>
+
+##### Recommended File Structure #####
+/audio/
+  /flute/
+    C4.mp3
+    C#4.mp3
+    ...
+  /clarinet/
+    D3.mp3
+    ...
+  /trumpet/
+    Bb3.mp3
+    ...
+  /fx/
+    correct.mp3
+    wrong.mp3
+
+##### Example Metadata Format #####
+
+const instruments = {
+  flute: {
+    displayName: "Flute",
+    range: ["C4", "D7"],
+    group: "soprano",
+    pitches: ["C4", "C#4", "D4", ..., "D7"]
+    octave: +1
+  },
+  trumpet: {
+    displayName: "Trumpet",
+    range: ["F#3", "C6"],
+    group: "alto",
+    pitches: ["F#3", "G3", ..., "C6"]
+    octave: 0
+  },
+  clarinet: {
+    displayName: "Clarinet",
+    range: ["E3", "C7"],
+    group: "soprano",
+    pitches: ["E3", "F3", ..., "C7"]
+    octave: 0
+  }
+};
+
+##### Get Random Instrument #####
+
+function getRandomInstrument(selected) {
+    const keys = Object.keys(instruments);
+    const pool = selected.length ? selected : keys;
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
+##### Get Random Pitch for That Instrument #####
+
+function getRandomPitch(instrName, selectedRanges) {
+    const inst = instruments[instrName];
+    let pool = inst.pitches;
+
+    if (selectedRanges.length) {
+        // Example range filters: "soprano", "bass", etc.
+        if (!selectedRanges.includes(inst.group)) return null;
+    }
+
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
+##### Get Audio File Path #####
+
+function getAudioPath(instrument, pitch) {
+    return `audio/${instrument}/${pitch}.mp3`;
+}
+
+##### Select First Instrument and Pitch #####
+
+function selectPrimaryTone(instrumentsPool) {
+    const instrName = getRandomInstrument(instrumentsPool);
+    const pitch = getRandomPitch(instrName, []); // assume full range for now
+    return { instrName, pitch };
+}
+
+##### Select Compatible Second Instrument #####
+
+function selectSecondaryInstrument(pitch, secondaryPool) {
+    const compatible = secondaryPool.filter(instr => instruments[instr].pitches.includes(pitch));
+    if (compatible.length === 0) {
+        throw new Error(`No compatible instruments found for pitch ${pitch}`);
+    }
+    const instrName = compatible[Math.floor(Math.random() * compatible.length)];
+    return instrName;
+}
+
+##### Example Usage: #####
+
+const primaryPool = ["flute", "clarinet", "trumpet"];
+const secondaryPool = ["flute", "clarinet", "trumpet"];
+
+try {
+    const primary = selectPrimaryTone(primaryPool);
+    const secondaryInstr = selectSecondaryInstrument(primary.pitch, secondaryPool);
+
+    const primaryPath = getAudioPath(primary.instrName, primary.pitch);
+    const secondaryPath = getAudioPath(secondaryInstr, primary.pitch);
+
+    console.log("Primary:", primaryPath);
+    console.log("Secondary:", secondaryPath);
+} catch (e) {
+    console.error("Selection error:", e.message);
+    alert("Selected instruments do not share any common pitch. Please choose different instruments.");
+}
+
+##### Validation Step on Instrument Selection #####
+
+function hasSharedPitch(instrA, instrB) {
+    const aPitches = new Set(instruments[instrA].pitches);
+    return instruments[instrB].pitches.some(p => aPitches.has(p));
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Test</title>
+</head>
+<body>
+    <button id="original">Original</button>
+    <button id="detuned">Detuned</button>
+
+    <script>
+        const originalBtn = document.querySelector("#original");
+        const detunedBtn = document.querySelector("#detuned");
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let audioBuffer = null;
+
+        // Load the audio file
+        fetch("audio/trumpet/Bb4.mp3")
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+            .then(decoded => {
+                audioBuffer = decoded;
+            })
+            .catch(err => console.error("Error loading audio:", err));
+
+        function playAudio(detuneCents = 0) {
+            if (!audioBuffer) return;
+
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+
+            // Apply pitch shift
+            const detuneRatio = Math.pow(2, detuneCents / 1200);
+            source.playbackRate.value = detuneRatio;
+
+            // Connect to output
+            source.connect(audioContext.destination);
+            source.start();
+        }
+
+        originalBtn.addEventListener("click", () => {
+            playAudio(0); // No detuning
+        });
+
+        detunedBtn.addEventListener("click", () => {
+            playAudio(25); // Detune up by 25 cents
+        });
+    </script>
+</body>
+</html>

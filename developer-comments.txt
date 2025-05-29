@@ -1,0 +1,50 @@
+//TODO
+
+//Design layout of webpage
+
+//Import more audio files
+//1. Multiple instruments on Bb
+//    a. flute, clarinet, trumpet, trombone
+//2. Multiple notes on each instrument
+
+//Develop application structure
+
+
+question - do I want to use "unison" where the sounding pitches are exactly the same, for example a trombone would play "high Bb" while a trumpet plays "low [concert] Bb" to achieve a unison pitch, or do I want to use "unison" as it is normally used in band context: each instrument plays in it's "normal" octave. So "low" concert Bb is like the bottom note of the Bb scale that we all play as a warmup, even though that technically means 4 different octaves (tuba, bari sax, alto sax, flute, for example). 
+
+my gut reaction - use the "normal band definition". If I want to tune Unison Bb, I'm really talking about any octave. 
+
+So if the first Random note is flute Bb 5 (their "low" Bb), I want the second random note to either be flute Bb5, alto/ten/tpt/clar Bb4, bari/bcl/tbn/bar Bb3, and tuba Bb2. Right?
+
+Brainstorm:
+
+two modes. One is "true unison" - instruments get their actual sounding pitches, like Bb3 for tenor voices, then it would have to be another tenor voice or a bass voice.
+the second is "normal octaves" - Bb3 on tenor voice would be Bb 4 in alto voices or Bb 5 in soprano voices.
+This does present a difficulty and a limitation.
+Not all instruments have the same range, obviously. A trumpet can play to concert E below their "starting" Bb, but a clarinet can play to D below that Bb. Clarinets can also play up into the flute registers with much less difficulty than trumpets. Also, do we top off the range at a high Bb for trumpet? Or go all the way to high F above that? another design decision...
+
+But, the difficulty: what about French horn? The "starting" French horn note is not really as easy as "concert Bb" - they have to choose bottom space F or under the staff F. It's kind of like tenor sax. They (unfortunately) start on 3rd space C, and then learn to go higher! But then they frequently play lower in band music once you get out of the method book.
+
+Ahh, the target audience. Not 5th graders, not 6th graders, but really introduced to 7th grade and a focus in 9th-12th grade. 
+
+I still think: yes - one mode that is true unison, maybe a good place to start. Then, another mode that is normal octaves - i need some metadata for this though. Something that normalizes octaves... Bb4 on trumpet is Bb5 on flute, so flute is +1 octave. Bb3 on trombone is Bb4 on trumpet, so trombone is -1 octave. Bb2 on tuba, so -2 octaves. Something like octavenormalize: 0 (or -1, -2, +1) then my logic can use something to parse the current int from Bb5, add octavenormalize (-1), return Bb4 as the filename to use?
+
+But what if the first instrument is flute and the second instrument is Tuba? How will it know Bb5 and Bb2? Well, flute.octave is +1, tuba.octave is -2, so we would subtract flute.octave and add tuba.octave [-(1) + (-2)] = -3, so the Bb5 becomes Bb2.
+But if the first instrument is tuba and the second is Flute, does that still work?
+Subtract tuba.octave and add flute.octave [-(-2) + 1] = 3, so Bb2 becomes Bb5 ✅
+
+French horn is where it gets tricky though. Bb4 is their 4th space F, Bb3 is under the staff low F. We expect 5th grade trumpets to get up to Bb5, but never horns to get that high (their top line F) - if trumpet plays low C written, what do french horns play? definitely 1st space F. - Yeah, I guess we just put french horn in that "octave: 0" group, even though they can definitely play some of the same notes as trombone/baritone. Tenor sax would follow the same rule, in the octave:0 group, even though a lot of times in music they are playing in unison or close harmony with the trombones.
+
+#####
+
+Okay, so we have octaves figured out! Do we want to use 5ths, 3rds? ... no, I think that is beyond the scope of this website. The idea here is to help students tune unisons and octaves, not yet worry about interval tuning.
+
+#####
+
+There was a nagging thought... I don't mind having the "true unison" button, I think that's great. Or "normal octaves", that's good too. But there was something that just didn't sit right while I typed all that out up above.
+
+I think it has to do with this:
+If I still have the "reference instrument choice" and the "question instrument choice", where users can check boxes to include various instruments... like [x]flute for reference and [x]any for question.
+Well, it's going to pick a flute pitch from the full range of the flute, right? What if it picks like High C (C8?)? What other instruments from [x]any can play that high? Well, only the flute - actually, I'm thinking about making "piano" an option here, too. Band instruments have to learn to play in tune with pianos for solos, right? But then we have to "randomly" select only the flute if that note is only in that one instrument's range (or piano and flute, since I have my solution, but still...)
+
+
