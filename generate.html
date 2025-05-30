@@ -8,20 +8,20 @@
   <button id="generateBtn">Generate Tone</button>
   <p id="resultText">Press the button to generate a tone.</p>
 
+  <script src="data.js">
+  // data.js contains "instruments" object with list of instruments + pitches
+  </script>
+  
   <script>
-    const instruments = {
-      trumpet: {
-        foldername: "trumpet",
-        octnorm: 0,
-        pitches: ["F3", "A3", "C4", "F4", "A4", "C5", "F5"]
-      }
-    };
-    
-    const basePath = "./audio/" + instrument.foldername + "/";
+
+
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     document.getElementById("generateBtn").addEventListener("click", async () => {
+      const instrumentKeys = Object.keys(instruments);
+      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)];
       const instrument = instruments[instrumentName];
+      const basePath = "./audio/" + instrumentName + "/";
       const pitches = instrument.pitches;
 
       // Randomly choose a pitch
@@ -35,7 +35,7 @@
       const filePath = basePath + filename;
 
       // Display filename
-      document.getElementById("resultText").textContent = `Playing: ${filename}`;
+      document.getElementById("resultText").textContent = `Playing: ${filePath}`;
 
       try {
         const response = await fetch(filePath);
