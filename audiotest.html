@@ -4,10 +4,17 @@
     <title>Audio Test</title>
 </head>
 <body>
+  <div>
     <button id="original">Original</button>
     <button id="detuned">Detuned</button>
+  </div>
+  <div>
+    <button id="generate">Generate Random</button>
+    <p id="randResultText"></p>
+  </div>
 
     <script>
+
         const originalBtn = document.querySelector("#original");
         const detunedBtn = document.querySelector("#detuned");
 
@@ -45,6 +52,10 @@
         detunedBtn.addEventListener("click", () => {
             playAudio(25); // Detune up by 25 cents
         });
+
+	const generateBtn = document.querySelector("#generate");
+	const generateResultText = document.querySelector("#randResultText");
+
     </script>
 </body>
 </html>

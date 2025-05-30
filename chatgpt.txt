@@ -216,3 +216,64 @@ function hasSharedPitch(instrA, instrB) {
     const aPitches = new Set(instruments[instrA].pitches);
     return instruments[instrB].pitches.some(p => aPitches.has(p));
 }
+
+##### HTML Page to Test Random Pitch File Selection #####
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Tone Generator</title>
+</head>
+<body>
+  <h1>Random Tone Generator</h1>
+  <button id="generateBtn">Generate Tone</button>
+  <p id="resultText">Press the button to generate a tone.</p>
+
+  <script>
+    const instruments = {
+      trumpet: {
+        octnorm: 0,
+        pitches: ["F3", "A3", "C4", "F4", "A4", "C5", "F5"]
+      }
+    };
+
+    const instrumentName = "trumpet";
+    const basePath = "./audio/" + instrumentName + "/";
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    document.getElementById("generateBtn").addEventListener("click", async () => {
+      const instrument = instruments[instrumentName];
+      const pitches = instrument.pitches;
+
+      // Randomly choose a pitch
+      const pitch = pitches[Math.floor(Math.random() * pitches.length)];
+
+      // Randomly choose -a or -b
+      const version = Math.random() < 0.5 ? "a" : "b";
+
+      // Construct filename
+      const filename = `${pitch}-${version}.mp3`;
+      const filePath = basePath + filename;
+
+      // Display filename
+      document.getElementById("resultText").textContent = `Playing: ${filename}`;
+
+      try {
+        const response = await fetch(filePath);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioContext.destination);
+        source.start();
+      } catch (err) {
+        console.error("Error loading audio:", err);
+        document.getElementById("resultText").textContent = `Error loading: ${filename}`;
+      }
+    });
+  </script>
+</body>
+</html>
+

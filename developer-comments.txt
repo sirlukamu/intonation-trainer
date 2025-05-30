@@ -4,7 +4,7 @@
 
 //Import more audio files
 //1. Multiple instruments on Bb
-//    a. flute, clarinet, trumpet, trombone
+//    a. flute, trumpet, trombone
 //2. Multiple notes on each instrument
 
 //Develop application structure
