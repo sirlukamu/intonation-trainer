@@ -9,7 +9,11 @@
 
 //Develop application structure
 
-##### List of Instruments and Ranges Planned for Final Version #####
+##### Summary of Project Planning Discussion ##### 5/31/25
+
+
+
+##### List of Instruments and Ranges Planned for Final Version ##### 5/24/25
 
 piccolo, 
 flute, 
@@ -28,12 +32,12 @@ tuba,
 timpani,
 grand piano (16)
 
-##### File Size Considerations #####
+##### File Size Considerations ##### 5/25/25
 
 A 5-second .mp3 file at 128 kbps is about .5 MB. Since I am planning to record two notes for each pitch, the total file size for each instrument would equal 1MB per note in their full chromatic scale. Piano has the most at 88MB, a 2-octave chromatic scale would be 25MB.
 
  
-##### Design Choice: "True Unison" or "Normal Octaves" Option #####
+##### Design Choice: "True Unison" or "Normal Octaves" Option ##### 5/25/25
 
 True unison means the exact sounding pitch: Bb4 and Bb4. Normal Octaves means that Bb4 is "low" for one instrument and Bb5 is "low" for another, so the "low Bb" could mean different octaves depending on the instrument. This is normal in a concert band context.
 
@@ -46,9 +50,15 @@ To normalize octaves, the logic would use instrument metadata. (See #Example Met
 
 There may still be some issues to work through surrounding certain instruments like French horn. If "low" concert Bb is first space F for horn, putting it in the Medium category, what happens when the primary pitch randomizes as French Horn's low Bb (concert Eb) - an easy note for beginning horn players, but impossible for any other brass instrument? If the user also selects "French Horn" for primary and "Brass" for secondary, there would need to be a logic check in picking the primary pitch that excludes any notes that aren't in the secondary group. {!} OR {!} logic that prefers normalized octaves, but can also fall back on true unisons or alternate octaves. For example, if low Bb (Eb3) is picked for horn, trumpet's first space F (Eb4) could be picked for the secondary pitch.
 
-##### Design Choice: Scope of Project Limited to Unisons and Octaves #####
+##### Design Choice: Scope of Project Limited to Unisons and Octaves ##### 5/25/25
 
 The goal of this website is to train students to tune unisons and octaves. Other intervals, such as 5ths or 3rds, are outside the scope of this website. It may be grounds for a future project instead.
+
+##### Getting the Seconday Pitch ##### 5/31/25
+
+once the first pitch is selected randomly (which has already been programmed), how will it know to pick a second pitch? First, I do want to have options here: user can select "unison" or "octaves". when unison is selected, I need to have some kind of tracker. Would I create a "gamemode" variable that is a dictionary of key-value pairs? how do i make sure that at least one is selected? if it's okay to do either-or (it should be). [x]unison [x]octaves - those are the options. [ ]unison [ ]octaves would not be okay (both selected) maybe something that says Please select at least one option. if they leave both unselected and try to play. Can i do something like gamemode.unison = false, gamemode.octaves = false, then (!gamemode.unison) && (!gamemode.octaves) {err}? I need to learn more about inputs, but <input type="checkbox"> and trying to figure out how to use that. Keep in mind that I also plan to use gamemode.instruments = [] 
+
+
 
 
 
