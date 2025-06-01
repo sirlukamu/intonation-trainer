@@ -11,7 +11,14 @@
 
 ##### Summary of Project Planning Discussion ##### 5/31/25
 
+Purpose & Goals - This web app is an educational tool for band teachers and students. By using this app, students will be able to practice identifying when two notes are in tune or not. The website is intended to be used both in classroom settings and for individual practice. Users will hear two notes played together and select "in tune" or "out of tune". If the notes are out of tune, it will be followed by another exercise where the reference tune will start, then the out-of-tune note will join, and the user will select "sharp" or "flat". The user will be given immediate feedback with information on how sharp or flat the note was as a visual tuner graphic and text statement, as well as giving the option to hear the notes again before proceeding to the next question. 
 
+Gamemode Options -
+1) Difficulty: Easy, Medium, and Hard. Gives a starting point for the first question, and adjusts as the game goes on. This setting determines how out-of-tune the second pitch will be. When the user answers correctly, it will get gradually more difficult, and if the user is incorrect, it will get gradually easier.
+2) Intervals: Unisons, Octaves, or Both. "Unison" will use the exact same pitch (e.g., "A4" for both notes. "Octaves" will play different octaves (e.g., A4 & A3) using a normalized system, which means that if a high Bb is played on one instrument, the second instrument will also try to play their high Bb if it has a different natural range. Otherwise, it will try to pick a note that is either one octave above or below the reference pitch if the second instrument is in the same range, or two octaves above or below.
+3) Instruments: to allow for focused practice, there will be an option to select specific instruments using checkboxes for both the primary and secondary notes. 
+4) Automatic Playback: All answers, On wrong answers, Off. This allows the user to choose if they want to hear the question played back after guessing before automatically going on to the next question.
+5) Playback Options: Mono, Stereo. Allows user to hear notes equally through both speakers or to have the notes panned slightly to different sides.
 
 ##### List of Instruments and Ranges Planned for Final Version ##### 5/24/25
 
