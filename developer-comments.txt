@@ -20,6 +20,10 @@ Gamemode Options -
 4) Automatic Playback: All answers, On wrong answers, Off. This allows the user to choose if they want to hear the question played back after guessing before automatically going on to the next question.
 5) Playback Options: Mono, Stereo. Allows user to hear notes equally through both speakers or to have the notes panned slightly to different sides.
 
+##### Difficulty #####
+
+easy could be anywhere from 30-50 cents? medium would be from 15-30 cents, hard would be below 15 cents. So if you click on "easy" it resets to 50 cents and gets harder from there. if you click on medium, it starts at 30 cents. hard is 15 cents. but then the program keeps track of correct/incorrect responses and makes the next question harder/easier.
+
 ##### List of Instruments and Ranges Planned for Final Version ##### 5/24/25
 
 piccolo, 
@@ -63,7 +67,16 @@ The goal of this website is to train students to tune unisons and octaves. Other
 
 ##### Getting the Seconday Pitch ##### 5/31/25
 
-once the first pitch is selected randomly (which has already been programmed), how will it know to pick a second pitch? First, I do want to have options here: user can select "unison" or "octaves". when unison is selected, I need to have some kind of tracker. Would I create a "gamemode" variable that is a dictionary of key-value pairs? how do i make sure that at least one is selected? if it's okay to do either-or (it should be). [x]unison [x]octaves - those are the options. [ ]unison [ ]octaves would not be okay (both selected) maybe something that says Please select at least one option. if they leave both unselected and try to play. Can i do something like gamemode.unison = false, gamemode.octaves = false, then (!gamemode.unison) && (!gamemode.octaves) {err}? I need to learn more about inputs, but <input type="checkbox"> and trying to figure out how to use that. Keep in mind that I also plan to use gamemode.instruments = [] 
+once the first pitch is selected randomly (which has already been programmed), how will it know to pick a second pitch? First, I do want to have options here: user can select "unison" or "octaves". when unison is selected, I need to have some kind of tracker. Would I create a "gamemode" variable that is a dictionary of key-value pairs? how do i make sure that at least one is selected? if it's okay to do either-or (it should be). [x]unison [x]octaves - those are the options. [ ]unison [ ]octaves would not be okay (both selected) maybe something that says Please select at least one option. if they leave both unselected and try to play. Can i do something like gamemode.unison = false, gamemode.octaves = false, then (!gamemode.unison) && (!gamemode.octaves) {err}? I need to learn more about inputs, but <input type="checkbox"> and trying to figure out how to use that. Better yet, use a <input type="radio" and include three options: unison, octaves, or both.  Keep in mind that I also plan to use gamemode.primaryinstruments = [{key: "flute" value: "true"} {key: "trumpet" value: "false"} {key: "baritone" value: "false"}] and the same with gamemode.secondaryinstruments. I'm thinking about adding a "brass" and "woodwinds" option, so I'd need to add some metadata to the instruments in my data.js file like trumpet: { family: "brass", octave: 0, pitches: ["F3", ... "F5"]}, flute: {...}
+
+so, if [x]unison is selected, and the computer picks a random instrument and pitch (baritone: Bb2), how will the computer know what the options for a second pitch are? First, look and see which instruments are selected, then look to see if Bb2 is in their list of pitches, make a new temporary list with those instrument names, do Math.floor(Math.random() * templist.length) to randomly choose secondaryInstrument, then if primaryInstrument = secondaryInstrument and if generatedTone = `${selectedPitch}-a`, choose `${selectedPitch}-b.mp3`, else choose `${selectedPitch}-a.mp3`. if primaryInstrument != secondaryInstrument, then do if Math.random() < .5 ? `${selectedPitch}-a.mp3` : `${selectedPitch}-b.mp3`
+
+now, if [x]octave is selected...
+
+
+##### Recording Option - Computer Generated #####
+
+I'm working on getting some of the files to just be computer generated. I was trying to use Finale and Audacity to loopback record, when I realized two things: Finale can easily export a file to .wav - instantly creating all of the pitches needed, and Finale can access the VST plugins for autotuning, which is nice because it adds some "human playback" effect of not generating perfectly in-tune notes. There are a lot of settings to tinker with, and unfortunately some of the resulting notes are unusable but others are perfect.
 
 
 
