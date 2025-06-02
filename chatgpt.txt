@@ -277,3 +277,13 @@ function hasSharedPitch(instrA, instrB) {
 </body>
 </html>
 
+##### String Splicing to get pitch name and octave #####
+function parseNote(input) {
+  const note = input.slice(0, -1); // assumes all notes have a 1-digit octave
+  const octave = parseInt(input.slice(-1), 10);
+  return { note, octave };
+}
+
+const result = parseNote("Bb5");
+// result: { note: "Bb", octave: 5 }
+// result.note = "Bb", result.octave = 5
