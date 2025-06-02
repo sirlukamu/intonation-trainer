@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Random Tone Generator</title>
+</head>
+<body>
+  <h1>Random Tone Generator</h1>
+  <h2>Version 2: Generate UNISON 2nd tone</h2>
+  <button id="generateBtn">Generate Tone</button>
+  <p id="resultText">Press the button to generate a tone.</p>
+  <button id="generateSecondary">Secondary Tone</button>
+  <p id="secondaryText">Press after choosing first tone.</p>
+
+  <script src="data.js">
+  // data.js contains "instruments" object with list of instruments + pitches
+  </script>
+  
+  <script>
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let selectedPitch = null;
+    let selectedInstrumentName = null;
+    let selectedVersion = null;
+
+    document.getElementById("generateBtn").addEventListener("click", async () => {
+
+      // Randomly choose an instrument
+      const instrumentKeys = Object.keys(instruments);
+      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)];
+      const instrument = instruments[instrumentName];
+      const basePath = "./audio/" + instrumentName + "/";
+      const pitches = instrument.pitches;
+
+      // Randomly choose a pitch
+      const pitch = pitches[Math.floor(Math.random() * pitches.length)];
+
+      // Randomly choose -a or -b
+      const version = Math.random() < 0.5 ? "a" : "b";
+
+      // Construct filename
+      const filename = `${pitch}-${version}.mp3`;
+      const filePath = basePath + filename;
+
+      // Save for global variable use
+      selectedPitch = pitch;
+      selectedInstrumentName = instrumentName;
+      selectedVersion = version;
+
+      // Display filename
+      document.getElementById("resultText").textContent = `Playing: ${filePath}`;
+
+      try {
+        const response = await fetch(filePath);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioContext.destination);
+        source.start();
+      } catch (err) {
+        console.error("Error loading audio:", err);
+        document.getElementById("resultText").textContent = `Error loading: ${filename}`;
+      }
+    });
+
+    document.getElementById("generateSecondary").addEventListener("click", async () => {
+      if (!selectedPitch) {
+	document.getElementById("secondaryText").textContent = "Please select a primary pitch first.";
+	return;
+      }
+
+      // Randomly choose secondary instrument
+      const instrumentKeys = Object.keys(instruments);
+      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)];
+      const instrument = instruments[instrumentName];
+      const basePath = "./audio/" + instrumentName + "/";
+      const pitches = instrument.pitches;
+      
+      //Select a pitch that is in unison with generateBtn's pitch.
+      if (!pitches.includes(selectedPitch)) {
+	document.getElementById("secondaryText").textContent = `${instrumentName} does not contain ${selectedPitch}.`
+	return;
+      }
+      let version = null;
+      if (instrumentName === selectedInstrumentName) {
+	if (selectedVersion === "a") {
+	  version = "-b"
+	} else {
+	  version = "-a"
+	}
+      } else {
+      version = Math.random() < 0.5 ? "-a" : "-b";
+      }
+      const filename = `${selectedPitch}${version}.mp3`;
+      const filePath = basePath + filename;
+
+      document.getElementById("secondaryText").textContent = `Playing: ${filePath}`;
+
+      try {
+	const response = await fetch(filePath);
+	const arrayBuffer = await response.arrayBuffer();
+	const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+	const source = audioContext.createBufferSource();
+	source.buffer = audioBuffer;
+	source.connect(audioContext.destination);
+	source.start();
+      } catch (err) {
+	console.error("Error loading audio:", err);
+	document.getElementById("secondaryText").textContent = `Error loading: ${filePath}`;
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
