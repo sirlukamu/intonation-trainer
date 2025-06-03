@@ -6,7 +6,7 @@ const instruments = {
   
   flute: {
     octave: 1,
-    pitches: ["F4", "Gb4", "A5", "Bb4", "C5", "Db5", "F5", "Gb5", "A5", "Bb4", "C6", "Db5", "F6"]
+    pitches: ["F4", "Gb4", "A4", "Bb4", "C5", "Db5", "F5", "Gb5", "A5", "Bb5", "C6", "Db6", "F6"]
   },
 
   baritone: {
