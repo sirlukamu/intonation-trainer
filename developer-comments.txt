@@ -1,13 +1,12 @@
-//TODO
-
-//Design layout of webpage
-
-//Import more audio files
-//1. Multiple instruments on Bb
-//    a. flute, trumpet, trombone
-//2. Multiple notes on each instrument
-
-//Develop application structure
+Next Steps:
+1. "Both" unison and octave generator
+2. Implement check-boxes for options
+3. Limit to specific instruments
+4. Implement check-boxes for instruments
+5. Randomize in/out of tune for secondary
+6. Create adaptive difficulty settings
+7. Implement buttons for "Reset Difficulty To"
+8. Second game-mode - if out of tune, then sharp-flat mode (as opposed to in-out mode)
 
 ##### Summary of Project Planning Discussion ##### 5/31/25
 
