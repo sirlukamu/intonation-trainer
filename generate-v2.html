@@ -81,6 +81,7 @@
 	document.getElementById("secondaryText").textContent = `${instrumentName} does not contain ${selectedPitch}.`
 	return;
       }
+      // Rewrite lines 72-84 so that it's a while (!pitches.includes(selectedPitch)) to ensure an instrument with pitches.includes(selectedPitch) is selected. Also, start thinking about how to write these functions as reusable generateUnison(), etc. for the script.js file.
       let version = null;
       if (instrumentName === selectedInstrumentName) {
 	if (selectedVersion === "a") {
