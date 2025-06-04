@@ -79,7 +79,14 @@ but what if secondaryInstrument is clarinet? normalized octave would be unison
 
 I'm working on getting some of the files to just be computer generated. I was trying to use Finale and Audacity to loopback record, when I realized two things: Finale can easily export a file to .wav - instantly creating all of the pitches needed, and Finale can access the VST plugins for autotuning, which is nice because it adds some "human playback" effect of not generating perfectly in-tune notes. There are a lot of settings to tinker with, and unfortunately some of the resulting notes are unusable but others are perfect.
 
+I have spent so much time on this. I've tried generating audio and using Autotuners like MAutoTune and Graillon3, but even though the pitch is steady, the volume pulses like it was still out of tune. I tried downloading other VST libraries: BBC Orchestra, Berlin OT. I've even tried downloading and using MuseScore instead of Finale. Here's finally one that might work, at least for flute, and it's back to the old Finale and Garritan instruments.
 
+In the MIDI/Audio > VST Banks & Effects... selecting the standard ARIA Player, but then clicking on the Edit icon, clicking on channel 1, brings up an option to slect FlutePlr1. For whatever reason, that took away the vibrato. Then in Effects > Graillon 3, I used Smooth: hard, Inertia: 20%, Snap Min: 1.00, and then I set Comp: 100%
 
+Now, instead of trying to set these perfectly over and over again, just do "Save As" and the next instrument name: oboe.
+
+##### Range options #####
+
+Since I've decided to use computer generated sounds for now, I think I can spend a little more time on the range options. The idea is to allow the user to select certain ranges - let's start with [ ]High [ ]Middle and [ ]Low. It's checkboxes, so they can select more than one. (If they don't select one, it gives a "Please select at least one box for ranges." Why? This lets students practice specific areas. I know my weakness is in hearing low notes. S
 
 
