@@ -1,4 +1,5 @@
 Next Steps:
+0. Edit full chromatic .wav files into pitch .mp3s
 1. "Both" unison and octave generator
 2. Implement check-boxes for options
 3. Limit to specific instruments
