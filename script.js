@@ -1,17 +1,11 @@
-// Define loadAudio function for later use
-async function loadAudio(filePath) {
-  try {
-    const response = await fetch(filePath);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    const source = audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(audioContext.destination);
-    source.start();
-  } catch (err) {
-    console.error("Error loading audio:", err);
-    document.getElementById("resultText").textContent = `Error loading: ${filePath}`;
-  }
+// Define playAudio function for later use
+async function playAudio(audioBuffer, detuneAmount) {
+  const source = audioContext.createBufferSource();
+  source.buffer = audioBuffer;
+  const detuneRatio = Math.pow(2, detuneAmount / 1200);
+  source.playbackRate.value = detuneRatio;
+  source.connect(audioContext.destination);
+  source.start();
 }
 
 //Select a pitch that is in octaves with generateBtn's pitch
@@ -19,4 +13,46 @@ function parseNote(input) {
   const note = input.slice(0, -1); // assumes all notes have a 1-digit octave
   const octave = parseInt(input.slice(-1), 10);
   return { note, octave };
+}
+
+// Defines loadAudioBuffer function
+async function loadAudioBuffer(filePath) {
+  const response = await fetch(filePath);
+  const arrayBuffer = await response.arrayBuffer();
+  return await audioContext.decodeAudioData(arrayBuffer);
+}
+
+// Defines playAudioBuffer function
+function playAudioBuffer(audioBuffer) {
+  const source = audioContext.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(audioContext.destination);
+  source.start();
+}
+
+async function playPrimary () {
+  const primaryInstrument = document.getElementById("primary-instrument").value;
+  const primaryNote = document.getElementById("primary-note").value;
+  const primaryVersion = document.getElementById("primary-version").value;
+  let primaryFilePath = `/audio/${primaryInstrument}/${primaryNote}-${primaryVersion}.mp3`;
+  console.log("Trying to fetch:", primaryFilePath);
+  let primaryBuffer = await loadAudioBuffer(primaryFilePath);
+  playAudioBuffer(primaryBuffer);
+}
+
+async function playSecondary () {
+  const secondaryInstrument = document.getElementById("secondary-instrument").value;
+  const secondaryNote = document.getElementById("secondary-note").value;
+  const secondaryVersion = document.getElementById("secondary-version").value;
+  const secondaryFilePath = `/audio/${secondaryInstrument}/${secondaryNote}-${secondaryVersion}.mp3`;
+  console.log("Trying to fetch:", secondaryFilePath);
+  let secondaryBuffer = await loadAudioBuffer(secondaryFilePath);
+
+  const source = audioContext.createBufferSource();	
+  source.buffer = secondaryBuffer;
+  const detuneAmount = document.getElementById("detune-slider").value;
+  const detuneRatio = Math.pow(2, detuneAmount / 1200);
+  source.playbackRate.value = detuneRatio; 
+  source.connect(audioContext.destination);
+  source.start();
 }

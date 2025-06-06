@@ -49,7 +49,7 @@ function playDetunedSound(buffer, detuneCents = 0, offset = 0, fadeOut = false) 
   source.start(audioCtx.currentTime + offset);
 }
 
-##### Adding Functionality to Play and Audio File and Apply Pitch Shifting #####
+##### Adding Functionality to Play and Audio File and Apply Pitch Shifting ##### (audiotest.html)
 
 <!DOCTYPE html>
 <html>
@@ -287,3 +287,60 @@ function parseNote(input) {
 const result = parseNote("Bb5");
 // result: { note: "Bb", octave: 5 }
 // result.note = "Bb", result.octave = 5
+
+##### Functions to populate drop-down menus ##### (audiotest-v2.html)
+
+function populateInstrumentDropdown(dropdownId) {
+  const dropdown = document.getElementById(dropdownId);
+  dropdown.innerHTML = "";
+  for (const instrument in instruments) {
+    const option = document.createElement("option");
+    option.value = instrument;
+    option.textContent = instrument.charAt(0).toUpperCase() + instrument.slice(1);
+    dropdown.appendChild(option);
+  }
+}
+
+function populateNoteDropdown(instrumentId, noteDropdownId) {
+  const instrumentName = document.getElementById(instrumentId).value;
+  const noteDropdown = document.getElementById(noteDropdownId);
+  noteDropdown.innerHTML = "";
+
+  if (instruments[instrumentName]) {
+    const pitches = instruments[instrumentName].pitches;
+    for (const pitch of pitches) {
+      const option = document.createElement("option");
+      option.value = pitch;
+      option.textContent = pitch;
+      noteDropdown.appendChild(option);
+    }
+  }
+}
+
+// Initial population
+populateInstrumentDropdown("primary-instrument");
+populateInstrumentDropdown("secondary-instrument");
+populateNoteDropdown("primary-instrument", "primary-note");
+populateNoteDropdown("secondary-instrument", "secondary-note");
+
+// Update notes when instrument changes
+document.getElementById("primary-instrument").addEventListener("change", () => {
+  populateNoteDropdown("primary-instrument", "primary-note");
+});
+document.getElementById("secondary-instrument").addEventListener("change", () => {
+  populateNoteDropdown("secondary-instrument", "secondary-note");
+});
+
+##### Shortcut to create filepaths ##### (audiotest-v2.html)
+
+const val = id => document.getElementById(id).value;
+
+let primaryFilePath = `/audio/${val("primary-instrument")}/${val("primary-note")}-${val("primary-version")}.mp3`;
+let secondaryFilePath = `/audio/${val("secondary-instrument")}/${val("secondary-note")}-${val("secondary-version")}.mp3`;
+
+##### Updating filepaths on click ##### (audiotest-v2.html)
+const primaryInstrument = document.getElementById("primary-instrument").value;
+const primaryNote = document.getElementById("primary-note").value;
+const primaryVersion = document.getElementById("primary-version").value;
+
+const primaryFilePath = `/audio/${primaryInstrument}/${primaryNote}-${primaryVersion}.mp3`;
