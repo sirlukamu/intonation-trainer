@@ -2,7 +2,8 @@
 <html>
 <head>
     <title>Audio Test Note Picker</title>
-    <script src="data.js"></script>
+    <script src="tempdata.js"></script>
+    // using "tempdata.js" until all files are completed
     <script src="script.js"></script>
 </head>
 <body style="margin-left: 20px">
@@ -36,6 +37,7 @@
     <button id="playBoth">Play Both</button>
   </div>
   </div>
+  <p> NOTE: not all sound files are completed yet. (6/8/2025)
 
     <script>
 
@@ -79,7 +81,9 @@
 	});
 
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+	console.log("Channel count:", audioContext.destination.channelCount);
         let audioBuffer = null;
+
 	
 	document.getElementById("playPrimary").addEventListener("click", playPrimary);
 	

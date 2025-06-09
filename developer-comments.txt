@@ -1,4 +1,5 @@
 Next Steps:
+A. Fix Generate Version 2 so that it always finds a second file.
 0. Edit full chromatic .wav files into pitch .mp3s
 1. "Both" unison and octave generator
 2. Implement check-boxes for options

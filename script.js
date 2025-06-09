@@ -23,10 +23,14 @@ async function loadAudioBuffer(filePath) {
 }
 
 // Defines playAudioBuffer function
-function playAudioBuffer(audioBuffer) {
+function playAudioBuffer(audioBuffer, detuneAmount = 0, panValue = 0) {
   const source = audioContext.createBufferSource();
   source.buffer = audioBuffer;
-  source.connect(audioContext.destination);
+  const panner = audioContext.createStereoPanner();
+  panner.pan.value = panValue;
+  const detuneRatio = Math.pow(2, detuneAmount / 1200);
+  source.playbackRate.value = detuneRatio;
+  source.connect(panner).connect(audioContext.destination);
   source.start();
 }
 
@@ -37,7 +41,7 @@ async function playPrimary () {
   let primaryFilePath = `/audio/${primaryInstrument}/${primaryNote}-${primaryVersion}.mp3`;
   console.log("Trying to fetch:", primaryFilePath);
   let primaryBuffer = await loadAudioBuffer(primaryFilePath);
-  playAudioBuffer(primaryBuffer);
+  playAudioBuffer(primaryBuffer, 0, -1);
 }
 
 async function playSecondary () {
@@ -47,12 +51,6 @@ async function playSecondary () {
   const secondaryFilePath = `/audio/${secondaryInstrument}/${secondaryNote}-${secondaryVersion}.mp3`;
   console.log("Trying to fetch:", secondaryFilePath);
   let secondaryBuffer = await loadAudioBuffer(secondaryFilePath);
-
-  const source = audioContext.createBufferSource();	
-  source.buffer = secondaryBuffer;
-  const detuneAmount = document.getElementById("detune-slider").value;
-  const detuneRatio = Math.pow(2, detuneAmount / 1200);
-  source.playbackRate.value = detuneRatio; 
-  source.connect(audioContext.destination);
-  source.start();
+  const detuneAmount = parseFloat(document.getElementById("detune-slider").value);
+  playAudioBuffer(secondaryBuffer, detuneAmount, 1);
 }
