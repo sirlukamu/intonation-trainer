@@ -3,9 +3,51 @@
   <head>
     <title>Intonation Trainer</title>
     <link rel="stylesheet" href="mystyles.css">
+    <script src="script.js"></script>
+    <script src="tempdata.js"></script>
   </head>
   <body>
-    <h1>Hello, world!</h1>
-    <p>Update.</p>
+    <h1>Intonation Trainer</h1>
+    <h3>Note: Core Gameplay Structure Prototype</h3>
+    <p>TODO: (p.s. the buttons don't do anything yet.)</p>
+    <ol>
+	<li>Implement start button.</li>
+	<li>Load two tones and play together</li>
+	<li>Prompt user: In Tune / Out of Tune</li>
+	<li>Provide feedback: Right! or Wrong.</li>
+	<li>If "In Tune" return to step 2 automatically.</li>
+	<li>If "Out of Tune" play first tone, then second tone.</li>
+	<li>Promput user: Sharp / Flat</li>
+	<li>Provide feedback: Right! or Wrong. with details</li>
+	<li>Return to step 2 automatically.</li>
+    </ol>
+    <div>
+        <button id="startButton" style="padding: 20px; margin-left: 50px">Start</button>
+    </div>
+    <div>
+	<p style="margin-left: 40px">Replay Buttons:</p>
+    </div>
+    <div>
+        <button id="primaryAudio">Primary</button>
+        <button id="secondaryAudio">Secondary</button>
+	<button id="combinedAudio">Together</button>
+    </div>
+    <div>
+        <p style="margin-left: 40px">Round <span>1</span>:</p>
+    </div>
+    <div>
+        <button id="inTune">In Tune</button>
+        <button id="outOfTune">Out of Tune</button>
+    </div>
+    <div>
+	<p style="margin-left: 40px">Follow up:</p>
+    </div>
+    <div>
+	<button id="sharp">Sharp</button>
+	<button id="flat">Flat</button>
+    </div>
+    <div>
+	<p style="margin-left: 40px">Feedback: <span id="feedback"></span></p>
+    </div>
   </body>
 </html>
