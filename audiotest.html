@@ -1,53 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audio Test</title>
+    <title>Audio Test Note Picker</title>
+    <script src="tempdata.js"></script>
+    // using "tempdata.js" until all files are completed
+    <script src="script.js"></script>
 </head>
-<body>
+<body style="margin-left: 20px">
   <div>
-    <button id="original">Original</button>
-    <button id="detuned">Detuned</button>
+    <h1 style="margin-left: 20px">Audio Test</h1>
+    <ol>
+      <li>Choose an instrument from the drop-down menu.</li>
+      <li>Choose a pitch from the next drop-down menu.</li>
+      <li>Enter a value between -50 and 50 to detune.</li>
+      <li>Use the buttons below to hear how it sounds.</li>
+    </ol> 
+    <h3>Choose your instruments and notes:</h3>
+    <select id="primary-instrument" title="Primary Instrument"></select>
+    <select id="primary-note" title="Primary Note"></select>
+    <select id="primary-version" title="Version" style="margin-right: 10px">
+	<option value="a">a</option>
+	<option value="b">b</option>
+    </select>
+    <select id="secondary-instrument" title="Secondary Instrument"></select>
+    <select id="secondary-note" title="Secondary Note"></select>
+    <select id="secondary-version" title="Version" style="margin-right: 10px">
+	<option value="a">a</option>
+	<option value="b">b</option>
+    </select>
+    <input type="range" id="detune-slider" min="-50" max="50" value="0" oninput="detuneOutput.value = value">
+    <span>cents: <output id="detuneOutput">0</output></span>
+
+  <div style="margin-top: 10px">
+    <button id="playPrimary" style="margin-right: 97px">Play Primary</button>
+    <button id="playSecondary" style="margin-right: 110px">Play Secondary</button>
+    <button id="playBoth">Play Both</button>
   </div>
+  </div>
+  <p> NOTE: not all sound files are completed yet. (6/8/2025)
 
     <script>
 
-        const originalBtn = document.querySelector("#original");
-        const detunedBtn = document.querySelector("#detuned");
+	function populateInstrumentDropdown(dropdownId) {
+	  const dropdown = document.getElementById(dropdownId);
+	  dropdown.innerHTML = "";
+	  for (const instrument in instruments) {
+	    const option = document.createElement("option");
+	    option.value = instrument;
+	    option.textContent = instrument;
+	    dropdown.appendChild(option);
+	  }
+	}
+
+	function populateNoteDropdown(instrumentId, dropdownId) {
+	  const instrumentName = document.getElementById(instrumentId).value;
+	  const noteDropdown = document.getElementById(dropdownId);
+	  noteDropdown.innerHTML = "";
+
+	  if (instruments[instrumentName]) {
+	    const pitches = instruments[instrumentName].pitches;
+	    for (const pitch of pitches) {
+	      const option = document.createElement("option");
+	      option.value = pitch;
+	      option.textContent = pitch;
+	      noteDropdown.appendChild(option);
+	    }
+	  }
+	}
+
+	populateInstrumentDropdown("primary-instrument");
+	populateInstrumentDropdown("secondary-instrument");
+	populateNoteDropdown("primary-instrument", "primary-note");
+	populateNoteDropdown("secondary-instrument", "secondary-note");
+
+	document.getElementById("primary-instrument").addEventListener("change", () => {
+	  populateNoteDropdown("primary-instrument", "primary-note");
+	});
+	document.getElementById("secondary-instrument").addEventListener("change", () => {
+	  populateNoteDropdown("secondary-instrument", "secondary-note");
+	});
 
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+	console.log("Channel count:", audioContext.destination.channelCount);
         let audioBuffer = null;
 
-        // Load the audio file
-        fetch("audio/trumpet/C4-a.mp3")
-            .then(response => response.arrayBuffer())
-            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-            .then(decoded => {
-                audioBuffer = decoded;
-            })
-            .catch(err => console.error("Error loading audio:", err));
+	
+	document.getElementById("playPrimary").addEventListener("click", playPrimary);
+	
+	document.getElementById("playSecondary").addEventListener("click", playSecondary);
 
-        function playAudio(detuneCents = 0) {
-            if (!audioBuffer) return;
-
-            const source = audioContext.createBufferSource();
-            source.buffer = audioBuffer;
-
-            // Apply pitch shift
-            const detuneRatio = Math.pow(2, detuneCents / 1200);
-            source.playbackRate.value = detuneRatio;
-
-            // Connect to output
-            source.connect(audioContext.destination);
-            source.start();
-        }
-
-        originalBtn.addEventListener("click", () => {
-            playAudio(0); // No detuning
-        });
-
-        detunedBtn.addEventListener("click", () => {
-            playAudio(25); // Detune up by 25 cents
-        });
+	document.getElementById("playBoth").addEventListener("click", async => {
+	  playPrimary();
+	  playSecondary();
+	});
     </script>
 </body>
 </html>
