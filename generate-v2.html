@@ -2,6 +2,11 @@
 <html>
 <head>
   <title>Generate Unison</title>
+  <script src="tempdata.js">
+  // data.js contains "instruments" object with list of instruments + pitches
+  // using "tempdata.js" until all audio files are complete.
+  </script>
+  <script src="script.js"></script>
 </head>
 <body>
   <h1>Random Tone Generator</h1>
@@ -11,60 +16,37 @@
   <button id="generateSecondary">Secondary Tone</button>
   <p id="secondaryText">Press after choosing first tone.</p>
 
-  <script src="tempdata.js">
-  // data.js contains "instruments" object with list of instruments + pitches
-  // using "tempdata.js" until all audio files are complete.
-  </script>
+
   
   <script>
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Set global variables for later use - do I need these?
+    // Set global variables for later use, needed for Generate Unison.
     let selectedPitch = null;
     let selectedInstrumentName = null;
     let selectedVersion = null;
 
     // Call function when "Generate" button is pushed: select and play primary pitch
     document.getElementById("generateBtn").addEventListener("click", async () => {
-
-      // Object.keys() returns an array of strings containing the key names of the (obj) parameter.
-      const instrumentKeys = Object.keys(instruments); // "instruments" from data.js contains a list like flute: {}, trumpet: {}, baritone: {}
-      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)]; // randomly select the nth instrument
-      const instrument = instruments[instrumentName]; // creates a duplicate of the instrument object, for example flute: {octave: 1; pitches: [...]}
-      const basePath = "./audio/" + instrumentName + "/"; // combine with later line.
+      const instrumentKeys = Object.keys(instruments); 
+      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)]; 
+      const instrument = instruments[instrumentName]; 
       const pitches = instrument.pitches;
 
       // Randomly choose a pitch
       const pitch = pitches[Math.floor(Math.random() * pitches.length)];
-
-      // Randomly choose -a or -b
       const version = Math.random() < 0.5 ? "a" : "b";
 
-      // Construct filename
-      const filename = `${pitch}-${version}.mp3`;
-      const filePath = basePath + filename;
-
+      const filePath = `./audio/${instrumentName}/${pitch}-${version}.mp3`;
+      document.getElementById("resultText").textContent = `Playing: ${filePath}`;      
       // Save for global variable use
       selectedPitch = pitch;
       selectedInstrumentName = instrumentName;
       selectedVersion = version;
 
-      // Display filename
-      document.getElementById("resultText").textContent = `Playing: ${filePath}`;
-
-      try {
-        const response = await fetch(filePath);
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        const source = audioContext.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
-        source.start();
-      } catch (err) {
-        console.error("Error loading audio:", err);
-        document.getElementById("resultText").textContent = `Error loading: ${filename}`;
-      }
+      let generateBuffer = await loadAudioBuffer(filePath);
+      playAudioBuffer(generateBuffer);
     });
 
     document.getElementById("generateSecondary").addEventListener("click", async () => {
@@ -73,47 +55,39 @@
 	return;
       }
 
-      // Randomly choose secondary instrument
+      let pitches = [];
+      let instrumentName = "";
+      let instrument = null;
       const instrumentKeys = Object.keys(instruments);
-      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)];
-      const instrument = instruments[instrumentName];
-      const basePath = "./audio/" + instrumentName + "/";
-      const pitches = instrument.pitches;
-      
-      //Select a pitch that is in unison with generateBtn's pitch.
-      if (!pitches.includes(selectedPitch)) {
-	document.getElementById("secondaryText").textContent = `${instrumentName} does not contain ${selectedPitch}.`
-	return;
+
+      while (!pitches.includes(selectedPitch)) {
+      // Randomly choose secondary instrument until it includes "selectedPitch"
+      	instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)];
+      	instrument = instruments[instrumentName];
+      	pitches = instrument.pitches;
       }
-      // Rewrite lines 72-84 so that it's a while (!pitches.includes(selectedPitch)) to ensure an instrument with pitches.includes(selectedPitch) is selected. Also, start thinking about how to write these functions as reusable generateUnison(), etc. for the script.js file.
+
+      	//Select a pitch that is in unison with generateBtn's pitch.       
       let version = null;
       if (instrumentName === selectedInstrumentName) {
+	// Handles case where the same instrument was selected
 	if (selectedVersion === "a") {
 	  version = "-b"
 	} else {
 	  version = "-a"
 	}
       } else {
-      version = Math.random() < 0.5 ? "-a" : "-b";
+      	version = Math.random() < 0.5 ? "-a" : "-b";
       }
-      const filename = `${selectedPitch}${version}.mp3`;
-      const filePath = basePath + filename;
-
+      
+      const filePath = `./audio/${instrumentName}/${selectedPitch}${version}.mp3`;
       document.getElementById("secondaryText").textContent = `Playing: ${filePath}`;
 
-      try {
-	const response = await fetch(filePath);
-	const arrayBuffer = await response.arrayBuffer();
-	const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-	const source = audioContext.createBufferSource();
-	source.buffer = audioBuffer;
-	source.connect(audioContext.destination);
-	source.start();
-      } catch (err) {
-	console.error("Error loading audio:", err);
-	document.getElementById("secondaryText").textContent = `Error loading: ${filePath}`;
-      }
+      let unisonBuffer = await loadAudioBuffer(filePath);
+      playAudioBuffer(unisonBuffer);      
     });
+
+      // Object.keys() returns an array of strings containing the key names of the (obj) parameter.
   </script>
 </body>
 </html>
