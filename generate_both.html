@@ -33,7 +33,7 @@
 	return { instrument, name };
 	}
 
-    function selectRandom() {
+    function generateRandom() {
 	// Returns an object to be used as file path for loadAudioBuffer(filePath);
 	const { instrument, name } = randomInstrument();
 	const pitch = instrument.pitches[Math.floor(Math.random() * instrument.pitches.length)];
@@ -48,7 +48,7 @@
 
     // Make "Generate Tone" button select and play the primary random tone.
     document.getElementById("generateBtn").addEventListener("click", async () => {
-	primary = selectRandom();      
+	primary = generateRandom();      
 
       // Display filename
       document.getElementById("resultText").textContent = `Playing: ${primary.filePath}`;
