@@ -19,17 +19,20 @@
   <script>
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Set global variables for later use - do I need these?
     let selectedPitch = null;
     let selectedInstrumentName = null;
     let selectedVersion = null;
 
+    // Call function when "Generate" button is pushed: select and play primary pitch
     document.getElementById("generateBtn").addEventListener("click", async () => {
 
-      // Randomly choose an instrument
-      const instrumentKeys = Object.keys(instruments);
-      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)];
-      const instrument = instruments[instrumentName];
-      const basePath = "./audio/" + instrumentName + "/";
+      // Object.keys() returns an array of strings containing the key names of the (obj) parameter.
+      const instrumentKeys = Object.keys(instruments); // "instruments" from data.js contains a list like flute: {}, trumpet: {}, baritone: {}
+      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)]; // randomly select the nth instrument
+      const instrument = instruments[instrumentName]; // creates a duplicate of the instrument object, for example flute: {octave: 1; pitches: [...]}
+      const basePath = "./audio/" + instrumentName + "/"; // combine with later line.
       const pitches = instrument.pitches;
 
       // Randomly choose a pitch
