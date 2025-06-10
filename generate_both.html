@@ -13,6 +13,7 @@
   <p id="resultText">Press the button to generate a tone.</p>
   <button id="generateSecondary">Secondary Tone</button>
   <p id="secondaryText">Press after choosing first tone.</p>
+  <p id="orResult"></p>
 
   <script src="tempdata.js">
   // data.js contains "instruments" object with list of instruments + pitches
@@ -26,115 +27,99 @@
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let primary = null;
     let secondary = null;
-    function randomInstrument() {
-	const keys = Object.keys(instruments);
-	const name = keys[Math.floor(Math.random() * keys.length)];
-	const instrument = instruments[name];
-	return { instrument, name };
-	}
 
-    function generateRandom() {
-	// Returns an object to be used as file path for loadAudioBuffer(filePath);
-	const { instrument, name } = randomInstrument();
-	const pitch = instrument.pitches[Math.floor(Math.random() * instrument.pitches.length)];
-	const version = Math.random() < 0.5 ? "-a" : "-b";
-	return {
-	  filePath: `./audio/${name}/${pitch}${version}.mp3`,
-	  name: name,
-	  pitch: pitch,
-	  version: version
-	};
-    }
-
-    // Make "Generate Tone" button select and play the primary random tone.
+    // Make "Generate Tone" button select and play the PRIMARY random tone.
     document.getElementById("generateBtn").addEventListener("click", async () => {
 	primary = generateRandom();      
-
-      // Display filename
-      document.getElementById("resultText").textContent = `Playing: ${primary.filePath}`;
-      let primaryBuffer = await loadAudioBuffer(primary.filePath);
-      playAudioBuffer(primaryBuffer);
+      	document.getElementById("resultText").textContent = `Playing: ${primary.filePath}`;
+      	let primaryBuffer = await loadAudioBuffer(primary.filePath);
+      	playAudioBuffer(primaryBuffer);
     });
 
-    function selectOctave(primary) {
-	// Uses the "primary" object to generate a matching "secondary"
-	
-	    return {
-	    filePath: `./audio/${secondary.name}/${secondary.pitch}{secondary.version}.mp3`,
-	    name: name,
-	    pitch: pitch,
-	    version: version
-	};
-    }
-
+    // Make "Secondary Tone" button select and play the SECONDARY tone.
     document.getElementById("generateSecondary").addEventListener("click", async () => {
       if (!primary) {
 	document.getElementById("secondaryText").textContent = "Please select a primary pitch first.";
 	return;
       }
 
-	// Randomly decide: octave or unison
-
-	const decision = Math.random() < 0.5 ? "octave" : "unison";
-
-//	if (decision === "octave") {
-//	    do this
-//	} else {
-//	    do that
-//	}
-
-      // Randomly choose secondary instrument
-      const instrumentKeys = Object.keys(instruments);
-      const instrumentName = instrumentKeys[Math.floor(Math.random() * instrumentKeys.length)];
-      const instrument = instruments[instrumentName];
-      const basePath = "./audio/" + instrumentName + "/";
-      const pitches = instrument.pitches;
-      
-      const parsedNote = parseNote(selectedPitch);
-      // example result: { note: "Bb", octave: 5 }
-      // parsedNote.note = "Bb", parsedNote.octave = 5
-
       let newNote = null;
-      let version = null;
-      let secondaryOctave = null;
-      let primaryInstrument = instruments[selectedInstrumentName];
-      if (primaryInstrument.octave === instrument.octave) {
-	const direction = Math.random() < .5 ? 1 : -1;
-	const distances = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
-	for (let i = 0; i < distances.length; i++) {
-	  const testOctave = parsedNote.octave + (distances[i] * direction);
-	  const candidate = parsedNote.note + testOctave;
-	  
-	  if (instrument.pitches.includes(candidate)) {
-	    newNote = candidate;
-	    break;
-	  }
-	}
-      } else {
-        let normalizedOctave = instrument.octave - primaryInstrument.octave;
-        let testOctave = parsedNote.octave + normalizedOctave;
-        let candidate = parsedNote.note + testOctave;
-        // for example, flute's low Bb4 is picked for primary, tuba is secondary (aiming for Bb1)
-        // tuba.octave(-2) - flute.octave (1) = -3, Bb(4-3=1)
-        if (instrument.pitches.includes(candidate)) {
-	  newNote = candidate;
-        } else {
-          const direction = Math.random() < .5 ? 1 : -1;
-          const distances = [1, -1, 2, -2, 3, -3];
-          for (let i = 0; i < distances.length; i++) {
-	    testOctave = parsedNote.octave + (distances[i] * direction);
-	    candidate = parsedNote.note + testOctave;
-	    if (instrument.pitches.includes(candidate)) {
-	      newNote = candidate;
-	      break;
-	    }
-          }
-	}
-      }
-      version = Math.random() < 0.5 ? "-a" : "-b";
-      const filename = `${newNote}${version}.mp3`;
-      const filePath = `./audio/${secondary.name}/${secondary.pitch}{secondary.version}.mp3`
+      let version = Math.random() < 0.5 ? "-a" : "-b";
 
+	// Randomly decide: octave or unison
+	const decision = Math.random() < 0.5 ? "octave" : "unison";
+	document.getElementById("orResult").textContent = `Playing ${decision}.`;
+	if (decision === "octave") {
+	    // Generate an OCTAVE pitch
+	    secondary = randomInstrument();
+	    let primaryInstrument = instruments[primary.name];
+	    let secondaryInstrument = instruments[secondary.name];
+      	    const parsedNote = parseNote(primary.pitch);
+      	    // example result: { note: "Bb", octave: 5 }
+      	    // parsedNote.note = "Bb", parsedNote.octave = 5
+
+      	    if (primaryInstrument.octave === secondaryInstrument.octave) {
+		const direction = Math.random() < .5 ? 1 : -1;
+		const distances = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
+		for (let i = 0; i < distances.length; i++) {
+	  	    const testOctave = parsedNote.octave + (distances[i] * direction);
+	  	    const candidate = parsedNote.note + testOctave;
+	  
+	  	    if (secondaryInstrument.pitches.includes(candidate)) {
+	    		newNote = candidate;
+	    		break;
+	  	    }
+		}
+      	    } else {
+        	let normalizedOctave = secondaryInstrument.octave - primaryInstrument.octave;
+        	let testOctave = parsedNote.octave + normalizedOctave;
+        	let candidate = parsedNote.note + testOctave;
+        	// for example, flute's low Bb4 is picked for primary, tuba is secondary (aiming for Bb1)
+        	// tuba.octave(-2) - flute.octave (1) = -3, Bb(4-3=1)
+        	if (secondaryInstrument.pitches.includes(candidate)) {
+	  	    newNote = candidate;
+        	} else {
+          	    const direction = Math.random() < .5 ? 1 : -1;
+          	    const distances = [1, -1, 2, -2, 3, -3, 4, -4];
+          	    for (let i = 0; i < distances.length; i++) {
+	    		testOctave = parsedNote.octave + (distances[i] * direction);
+	    		candidate = parsedNote.note + testOctave;
+	    		if (secondaryInstrument.pitches.includes(candidate)) {
+	      		    newNote = candidate;
+	      		    break;
+	    		}
+          	    }
+		}
+      	    }
+	} else {
+	    // Generate a UNISON Pitch
+	    secondary = randomInstrument();
+	    newNote = primary.pitch;
+	    let pitches = [];
+	    let name = "";
+	    let instrument = null;
+	    const keys = Object.keys(instruments);
+	    let version = null;
+
+	    while (!pitches.includes(primary.pitch)) {
+		name = keys[Math.floor(Math.random() * keys.length)];
+		instrument = instruments[name];
+		pitches = instrument.pitches;
+		secondary.name = name;
+	    }
+
+	    if (secondary.name === primary.name) {
+		if (primary.version === "-a") {
+		    version = "-b";
+		} else {
+		    version = "-a";
+		}
+	    } else {
+		version = Math.random() < 0.5 ? "-a" : "-b";
+	    }
+	}      	
+
+      const filePath = `./audio/${secondary.name}/${newNote}${version}.mp3`
       document.getElementById("secondaryText").textContent = `Playing: ${filePath}`;
       let secondaryBuffer = await loadAudioBuffer(filePath);
       playAudioBuffer(secondaryBuffer);

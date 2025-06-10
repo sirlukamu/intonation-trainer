@@ -54,3 +54,23 @@ async function playSecondary () {
   const detuneAmount = parseFloat(document.getElementById("detune-slider").value);
   playAudioBuffer(secondaryBuffer, detuneAmount, 1);
 }
+
+    function randomInstrument() {
+	const keys = Object.keys(instruments);
+	const name = keys[Math.floor(Math.random() * keys.length)];
+	const instrument = instruments[name];
+	return { instrument, name };
+	}
+
+    function generateRandom() {
+	// Returns an object to be used as file path for loadAudioBuffer(filePath);
+	const { instrument, name } = randomInstrument();
+	const pitch = instrument.pitches[Math.floor(Math.random() * instrument.pitches.length)];
+	const version = Math.random() < 0.5 ? "-a" : "-b";
+	return {
+	  filePath: `./audio/${name}/${pitch}${version}.mp3`,
+	  name: name,
+	  pitch: pitch,
+	  version: version
+	};
+    }
