@@ -1,4 +1,5 @@
 Next Steps:
+- Stopped at line 78 in generate_both.html, 
 0. Edit full chromatic .wav files into pitch .mp3s
 1. "Both" unison and octave generator
 2. Implement check-boxes for options
@@ -99,3 +100,21 @@ Using "git status" shows which files I have changed compared to what is currentl
 I can run "git diff" to see exactly what I have changed during the current work session. Then, I can use "git add {filename}" to "stage" that file for committing. It is good practice to stage one file at a time (unless they are logically grouped together). 
 
 Finally, I run "git commit" to open up a message editor, add a short subject line, press enter twice, then add a longer body comment explaining the change in more detail, save and close the file, then run "git push" to upload the changes to the GitHub site.
+
+##### Learning about Destructuring #####
+
+    function randomInstrument() {
+	const keys = Object.keys(instruments);
+	const name = keys[Math.floor(Math.random() * keys.length)];
+	const instrument = instruments[name];
+	return { instrument, name };
+	}
+
+    function selectRandom() {
+	const { instrument, name } = randomInstrument();
+
+The line: return { instrument, name }; is the same as saying return {instrument: instrument, name: name} - it returns an object with those two values as set in the function, instrument and name. 
+
+The line: const { instrument, name } = randomInstrument(); creates the variable "instrument" and sets it equal to the return value of  I could call: let result = randomInstrument() and then const name = result.name; const instrument = result.instrument; and it would do the same thing.
+
+Remember: in calling const { instrument, name }, the property names MUST match.
