@@ -89,6 +89,14 @@ Now, instead of trying to set these perfectly over and over again, just do "Save
 
 ##### Range options #####
 
-Since I've decided to use computer generated sounds for now, I think I can spend a little more time on the range options. The idea is to allow the user to select certain ranges - let's start with [ ]High [ ]Middle and [ ]Low. It's checkboxes, so they can select more than one. (If they don't select one, it gives a "Please select at least one box for ranges." Why? This lets students practice specific areas. I know my weakness is in hearing low notes. S
+Since I've decided to use computer generated sounds for now, I think I can spend a little more time on the range options. The idea is to allow the user to select certain ranges - let's start with [ ]High [ ]Middle and [ ]Low. It's checkboxes, so they can select more than one. (If they don't select one, it gives a "Please select at least one box for ranges." Why? This lets students practice specific areas. I know my weakness is in hearing low notes. For simplicity, High means any note in octaves 5-6, Medium is octave 4, and low is anything in octaves 2-3. That covers all the instrument ranges - excluding piccolo for now.
 
+##### Understanding GitHub Commit Commands #####
 
+I want to develop a professional workflow, so I will start using commit messages more conventionally. 
+
+Using "git status" shows which files I have changed compared to what is currently uploaded to GitHub. This allows me to decide what I need to pull or commit.
+
+I can run "git diff" to see exactly what I have changed during the current work session. Then, I can use "git add {filename}" to "stage" that file for committing. It is good practice to stage one file at a time (unless they are logically grouped together). 
+
+Finally, I run "git commit" to open up a message editor, add a short subject line, press enter twice, then add a longer body comment explaining the change in more detail, save and close the file, then run "git push" to upload the changes to the GitHub site.
