@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<title>Website UI Test</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+	    * {
+		box-sizing: border-box;
+	    }
+	    body {
+		margin: 0;
+		font-family: sans-serif;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 100vh;
+		background: #f0f0f0;
+	    }
+	    h2 {
+		margin-top: 0;
+		margin-bottom: 0;
+	    }
+	    p {
+		margin-top: .5rem;
+		margin-bottom: 0;
+
+	    }
+	    .main-box {
+		background: white;
+		border: 2px solid #333;
+		border-radius: 10px;
+		padding: 1rem;
+		width: 90%;
+		max-width: 500px;
+		height: 400px;
+		max-height: 90vh;
+		overflow: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	    }
+	    .border-separator {
+		position: relative;
+		height: 0;
+		border-top: 1px dotted grey;
+		margin: .5rem 0;
+	    }
+	    .game-text {
+		height: 40%;
+	    }
+	    .game-controls {
+		display: flex;
+		gap: 1rem;
+		height: 40%;
+	    }
+	    .game-control-buttons {
+		flex: 1;
+		min-width: 0;
+		padding: 0.75rem;
+		text-align: center;		
+	    }
+	    .status-bar {
+		font-size: 1.5rem;
+		font-weight: bold;
+		height: 10%;
+		width: 100%;
+		padding: 0 2rem;
+		display: flex;
+		justify-content: space-between;
+		flex-wrap: nowrap;
+		gap: 0.5rem;
+		min-width: 0;
+	    }
+	    .status-buttons {
+		height: 10%;
+		display: flex;
+		gap: 1rem;
+
+	    }
+	    .status-button {
+		flex: 1;
+		min-width: 0;
+		text-align: center;
+		white-space: nowrap;
+	    }
+	    #status-canvas {
+		margin: -.75rem 1rem;
+		height: 3rem;
+		width: 4rem;
+	    }
+
+	    button {
+		padding: 0.5rem 1rem;
+		font-size: 1rem;
+		cursor: pointer;
+		border: 1px solid #333;
+		border-radius: 5px;
+		background: #eee;
+	    }
+	    button:hover {
+		background: #ddd;
+	    }
+
+
+	</style>
+    </head>
+    <body>
+	<div id="gameUI" class="main-box">
+	    <div class="game-text">
+	    	<h2>Game Screen</h2>
+	    	<p>Information text</p>
+	    </div>
+	    <div class="border-separator"></div>
+	    <div class="game-controls">
+		<button id="repeat" class="game-control-buttons">Repeat</button>
+		<button id="in-sharp" class="game-control-buttons">In Tune</button>
+		<button id="out-flat" class="game-control-buttons">Out of Tune</button>
+	    </div>
+	    <div class="border-separator"></div>
+	    <div class="status-bar">
+		<span>Score: <span id="score">0</span></span>
+		<canvas id="status-canvas" height="48" width="64"></canvas>
+		<span>Timer - <span id="timer">0:00</span></span>
+	    </div>
+	    <div class="border-separator"></div>
+	    <div class="status-buttons">
+		<button id="resetScore" class="status-button">Restart</button>
+		<button id="optionsToggle" class="status-button">Options</button>
+		<button id="pauseButton" class="status-button">Pause</button>
+	    </div>
+	</div>
+
+    <script>
+	const canvas = document.getElementById("status-canvas");
+	const ctx = canvas.getContext("2d");
+	const img = new Image();
+	img.src = "./images/smiley.png";
+	img.onload = function () {
+	    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+	};
+	
+    </script>
+    </body>
+</html>
