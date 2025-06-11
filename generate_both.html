@@ -43,12 +43,12 @@
 	return;
       }
 
-      let newNote = null;
-      let version = Math.random() < 0.5 ? "-a" : "-b";
-
+      	let newNote = null;
+	let version;
 	// Randomly decide: octave or unison
 	const decision = Math.random() < 0.5 ? "octave" : "unison";
 	document.getElementById("orResult").textContent = `Playing ${decision}.`;
+	
 	if (decision === "octave") {
 	    // Generate an OCTAVE pitch
 	    secondary = randomInstrument();
@@ -91,7 +91,9 @@
           	    }
 		}
       	    }
+      	version = Math.random() < 0.5 ? "-a" : "-b";
 	} else {
+
 	    // Generate a UNISON Pitch
 	    secondary = randomInstrument();
 	    newNote = primary.pitch;
@@ -99,7 +101,6 @@
 	    let name = "";
 	    let instrument = null;
 	    const keys = Object.keys(instruments);
-	    let version = null;
 
 	    while (!pitches.includes(primary.pitch)) {
 		name = keys[Math.floor(Math.random() * keys.length)];
