@@ -97,6 +97,9 @@
 		margin: 2rem 0;
 		padding: 2rem;		
 	    }
+	    #optionsUI {
+		gap: .5rem;
+	    }
 	    button {
 		padding: 0.5rem 1rem;
 		font-size: 1rem;
@@ -105,9 +108,51 @@
 		border-radius: 5px;
 		background: #eee;
 	    }
+	    .difficultybutton {
+		padding: 0rem 1rem;
+		border: none;
+		width: 5.5rem;
+	    }
 	    button:hover {
 		background: #ddd;
 	    }
+	    #optionsTextBar {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+	    }
+	    #optionsText {
+		color: red;
+		max-width: 70%;
+		text-align: left;
+		display: block;
+		margin-left: 1rem;
+	    }
+
+	
+	    .equal-spacing {
+		display: flex;
+		justify-content: center;
+		gap: 5rem;
+	    }
+	    .option-row {
+		display: flex;
+	    }
+	    .option-row span {
+		width: 8.5rem;
+	    }
+	    .option-set {
+		margin-right: 1rem;
+		display: flex;
+		justify-content: space-between;
+		flex: 1;
+	    }
+	    .option-set label {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	    }
+
 
 
 	</style>
@@ -119,6 +164,7 @@
 	    <button id="startGame">Start</button>
 	    <button class="optionsToggle">Options</button>
 	</div>
+
 	<!-- Game UI -->
 	<div id="gameUI" class="main-box hidden">
 	    <div class="game-text">
@@ -144,39 +190,60 @@
 		<button id="pauseButton" class="status-button">Pause</button>
 	    </div>
 	</div>
+
+	<!-- Options UI -->
 	<div id="optionsUI" class="main-box">
-	    <h2>Options</h2>
-	    <div>
-		Intervals:
-		<input type="radio" name="interval" value="unison"> Unison
-		<input type="radio" name="interval" value="octaves"> Octaves
-		<input type="radio" name="interval" value="both" checked> Both
+	    <div id="optionsTextBar">
+		<h2>Options</h2>
+		<span id="optionsText">Extra text goes here.</span>
 	    </div>
-	    <div>
-		Reset Difficulty:
-		<button>Easy</button>
-		<button>Medium</button>
-		<button>Hard</button>
+	    <div class="border-separator"></div>
+	    <div class="option-row">
+		<span>Intervals:</span>
+		<div class="option-set">
+		    <label><input type="radio" name="interval" value="unison"> Unison</label>
+		    <label><input type="radio" name="interval" value="octaves"> Octaves</label>
+		    <label><input type="radio" name="interval" value="both" checked> Both</label>
+		</div>
 	    </div>
-	    <div>
-		Auto-playback:
-		<input type="radio" name="playback" value="always"> Always
-		<input type="radio" name="playback" value="wrong-only" checked> Wrong Only
-		<input type="radio" name="playback" value="never"> Never
+	    <div class="border-separator"></div>
+	    <div class="option-row">
+		<span>Reset Difficulty:</span>
+		<div class="option-set">
+		    <button class="difficultybutton">Easy</button>
+		    <button class="difficultybutton">Medium</button>
+		    <button class="difficultybutton">Hard</button>
+		</div>
 	    </div>
-	    <div>
-		Range:
-		<input type="checkbox" name="range" value="low" checked> Low
-		<input type="checkbox" name="range" value="medium" checked> Medium
-		<input type="checkbox" name="range" value="high" checked> High
+	    <div class="border-separator"></div>
+	    <div class="option-row">
+		<span>Auto-playback:</span>
+		<div class="option-set">
+		    <label><input type="radio" name="playback" value="always"> Always</label>
+		    <label><input type="radio" name="playback" value="wrong-only" checked> Wrong Only</label>
+		    <label><input type="radio" name="playback" value="never"> Never</label>
+		</div>
 	    </div>
-	    <div>
-		Game-mode:
-		<input type="radio" name="gamemode" value="free-play" checked> Free Play
-		<input type="radio" name="gamemode" value="countdown"> Countdown
-		<input type="radio" name="gamemode" value="challenge"> Challenge
+	    <div class="border-separator"></div>
+	    <div class="option-row">
+		<span>Range:</span>
+		<div class="option-set">
+		    <label><input type="checkbox" name="range" value="low" checked> Low</label>
+		    <label><input type="checkbox" name="range" value="medium" checked> Medium</label>
+		    <label><input type="checkbox" name="range" value="high" checked> High</label>
+		</div>
 	    </div>
-	    <div>
+	    <div class="border-separator"></div>
+	    <div class="option-row">
+		<span>Game-mode:</span>
+		<div class="option-set">
+		    <label><input type="radio" name="gamemode" value="free-play" checked> Free Play</label>
+		    <label><input type="radio" name="gamemode" value="countdown"> Countdown</label>
+		    <label><input type="radio" name="gamemode" value="challenge"> Challenge</label>
+		</div>
+	    </div>
+	    <div class="border-separator"></div>
+	    <div class="equal-spacing">
 		<button>Instrument Selection</button>
 		<button>Back to Game</button>
 	    </div>
@@ -186,7 +253,7 @@
 	const canvas = document.getElementById("status-canvas");
 	const ctx = canvas.getContext("2d");
 	const img = new Image();
-	img.src = "./images/smiley.png";
+	img.src = "./images/musicsmiley.png";
 	img.onload = function () {
 	    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 	};
