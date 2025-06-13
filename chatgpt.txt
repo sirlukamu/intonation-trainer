@@ -344,3 +344,28 @@ const primaryNote = document.getElementById("primary-note").value;
 const primaryVersion = document.getElementById("primary-version").value;
 
 const primaryFilePath = `/audio/${primaryInstrument}/${primaryNote}-${primaryVersion}.mp3`;
+
+##### Display Warning When No Instruments Are Selected #####
+const warning = document.getElementById('selection-warning');
+
+function checkSelection() {
+  const primaryChecked = document.querySelectorAll('.primary:checked').length > 0;
+  const secondaryChecked = document.querySelectorAll('.secondary:checked').length > 0;
+
+  if (primaryChecked && secondaryChecked) {
+    warning.style.display = 'none';
+  } else {
+    warning.style.display = 'block';
+  }
+}
+
+// Attach event listeners to all checkboxes after table builds
+function addCheckboxListeners() {
+  document.querySelectorAll('.primary, .secondary').forEach(cb => {
+    cb.addEventListener('change', checkSelection);
+  });
+}
+
+// Call after table is built and on page load
+addCheckboxListeners();
+checkSelection();

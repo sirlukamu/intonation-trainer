@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Instrument Selection</title>
+  <link rel="stylesheet" href="website_ui.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+	margin-top: 0;
+	font-size: 1rem;
+    }
+    th, td {
+      border: 0px solid #ccc;
+      padding: 0;
+      text-align: center;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    .select-options {
+	display: flex;
+	gap: .5rem;
+	justify-content: space-between;
+    }
+    .select-row {
+	text-size: .75rem;
+    }
+select {
+	padding: 0.5rem 1rem;
+	font-size: .8rem;
+	cursor: pointer;
+	border: 1px solid #333;
+	border-radius: 5px;
+	background: #eee;
+
+}
+	    #instrumentsTextBar {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+	    }
+	    #instrumentsText {
+		color: red;
+		max-width: 70%;
+		text-align: left;
+		display: block;
+		margin-left: 1rem;
+	    }
+  </style>
+</head>
+<body>
+  <div class="main-box">
+  <div id="instrumentsTextBar"><h2>Instrument Selection</h2>
+  <span id="instrumentsText">Select an instrument.</span>
+  </div>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th>Instrument</th>
+        <th>Primary</th>
+        <th>Secondary</th>
+      </tr>
+    </thead>
+    <tbody id="instrument-table-body">
+      <!-- Rows inserted by script -->
+    </tbody>
+  </table>
+<div class="select-options">
+<div class="select-row">
+    <select id="both-selection" onchange="handleSelectChange(this.value, 'both')">
+	<option value="" disabled selected>Both:</option>
+	<option value="select-all">All</option>
+	<option value="select-woodwinds">WWs</option>
+	<option value="select-brass">Brass</option>
+	<option value="select-none">None</option>
+    </select>  
+</div>
+<div class="select-row">
+    <select id="primary-selection" onchange="handleSelectChange(this.value, 'primary')">
+	<option value="" disabled selected>1st:</option>
+	<option value="select-all"> All</option>
+	<option value="select-woodwinds">WWs</option>
+	<option value="select-brass">Brass</option>
+	<option value="select-none">None</option>
+    </select>  
+</div>
+<div class="select-row">
+    <select id="secondary-selection" onchange="handleSelectChange(this.value, 'secondary')">
+	<option value="" disabled selected>2nd:</option>
+	<option value="select-all">All</option>
+	<option value="select-woodwinds">WWs</option>
+	<option value="select-brass">Brass</option>
+	<option value="select-none">None</option>
+    </select>  
+</div>
+
+</div>
+  </div>
+  <script src="data.js"></script>
+  <script>
+    // Score order override if needed
+    const scoreOrder = [
+      "piccolo", "flute", "oboe", "clarinet", "bass-clarinet",
+      "alto-saxophone", "tenor-saxophone", "baritone-saxophone",
+      "bassoon", "trumpet", "horn", "trombone", "bass-trombone",
+      "euphonium", "tuba", "percussion"
+    ];
+
+    const tableBody = document.getElementById("instrument-table-body");
+
+    function handleSelectChange(value, targetClass) {
+      const applyAction = group => {
+	const checkboxes = document.querySelectorAll(`.${group}`);
+	switch (value) {
+	    case "select-all":
+		checkboxes.forEach(cb => cb.checked = true);
+		break;
+	    case "select-none":
+		checkboxes.forEach(cb => cb.checked = false);
+		break;
+	    case "select-woodwinds":
+		checkboxes.forEach(cb => {
+		    cb.checked = cb.dataset.group === "woodwind";
+		});
+		break;
+	    case "select-brass":
+		checkboxes.forEach(cb => {
+		    cb.checked = cb.dataset.group === "brass";
+		});
+		break;
+	}
+      };
+      if (targetClass ==="both") {
+	applyAction("primary");
+	applyAction("secondary");
+      } else {
+	applyAction(targetClass);
+      }
+      document.getElementById(`${targetClass}-selection`).selectedIndex = 0;
+    }
+
+    function formatName(id) {
+      return id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function createRow(id, data) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${formatName(id)}</td>
+        <td><input type="checkbox" checked class="primary" data-group="${data.group}" id="primary-${id}"></td>
+        <td><input type="checkbox" checked class="secondary" data-group="${data.group}" id="secondary-${id}"></td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+    function buildTable() {
+      const ids = scoreOrder.filter(id => instruments[id]);
+      ids.forEach(id => {
+        const instr = instruments[id];
+        createRow(id, instr);
+      });
+    }
+
+    function selectAll() {
+      document.querySelectorAll('.primary, .secondary').forEach(cb => cb.checked = true);
+      checkSelection();
+    }
+
+    function deselectAll() {
+      document.querySelectorAll('.primary, .secondary').forEach(cb => cb.checked = false);
+      checkSelection();
+    }
+
+    function selectWoodwinds() {
+      deselectAll();
+      document.querySelectorAll('[data-group="woodwind"]').forEach(cb => cb.checked = true);
+      checkSelection();
+    }
+
+    function selectBrass() {
+      deselectAll();
+      document.querySelectorAll('[data-group="brass"]').forEach(cb => cb.checked = true);
+      checkSelection();
+    }
+
+    buildTable();
+
+const warning = document.getElementById('instrumentsText');
+
+function checkSelection() {
+  const primaryChecked = document.querySelectorAll('.primary:checked').length > 0;
+  const secondaryChecked = document.querySelectorAll('.secondary:checked').length > 0;
+
+  if (primaryChecked && secondaryChecked) {
+    warning.style.display = 'none';
+  } else {
+    warning.style.display = 'block';
+  }
+}
+
+// Attach event listeners to all checkboxes after table builds
+function addCheckboxListeners() {
+  document.querySelectorAll('.primary, .secondary').forEach(cb => {
+    cb.addEventListener('change', checkSelection);
+  });
+}
+
+// Call after table is built and on page load
+addCheckboxListeners();
+checkSelection();
+  </script>
+
+</body>
+</html>
