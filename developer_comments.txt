@@ -1,14 +1,12 @@
 Next Steps:
-- Stopped at line 78 in generate_both.html, 
-0. Edit full chromatic .wav files into pitch .mp3s
-1. "Both" unison and octave generator
-2. Implement check-boxes for options
-3. Limit to specific instruments
-4. Implement check-boxes for instruments
-5. Randomize in/out of tune for secondary
-6. Create adaptive difficulty settings
-7. Implement buttons for "Reset Difficulty To"
-8. Second game-mode - if out of tune, then sharp-flat mode (as opposed to in-out mode)
+- Edit full chromatic .wav files into pitch .mp3s
+- "Both" unison and octave generator
+- Randomize in/out of tune for secondary
+- Create adaptive difficulty settings
+- Implement buttons for "Reset Difficulty To"
+- Second game-mode - if out of tune, then sharp-flat mode (as opposed to in-out mode)
+- Range/Instrument compatibility
+- Review ChatGPT history and copy/cite all generated code.
 
 ##### Summary of Project Planning Discussion ##### 5/31/25
 
@@ -118,3 +116,11 @@ The line: return { instrument, name }; is the same as saying return {instrument:
 The line: const { instrument, name } = randomInstrument(); creates the variable "instrument" and sets it equal to the return value of  I could call: let result = randomInstrument() and then const name = result.name; const instrument = result.instrument; and it would do the same thing.
 
 Remember: in calling const { instrument, name }, the property names MUST match.
+
+##### Design Decisions #####
+
+Removed "piano" option because it isn't a sustained instrument and it's not a band instrument. 
+
+Also removed "piccolo" because of range and tone issues.
+
+Maybe consider 500 or 600 pixel height instead of 400.

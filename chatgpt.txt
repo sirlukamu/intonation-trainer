@@ -398,3 +398,152 @@ function showScreen(screenId) {
   document.getElementById(screenId).classList.remove("hidden");
 }
 showScreen("gameUI");
+
+##### Range and Instrument Compatibility #####
+
+const instruments = {
+  trumpet: {
+    pitches: [...],
+    range: ["low", "middle", "high"]
+  },
+
+let selectedRange = "middle"; // or get from document.querySelector(...)
+
+function checkSelection() {
+  const primaryChecked = Array.from(document.querySelectorAll('.primary:checked')).map(el => el.value);
+  const secondaryChecked = Array.from(document.querySelectorAll('.secondary:checked')).map(el => el.value);
+
+  const allSelected = [...new Set([...primaryChecked, ...secondaryChecked])];
+
+  const allCompatible = allSelected.every(instrumentName => {
+    const instrument = instruments[instrumentName];
+    return instrument.range.includes(selectedRange);
+  });
+
+  const warning = document.getElementById("warning");
+  const backButton = document.getElementById("backToGame");
+
+  if (allSelected.length > 0 && allCompatible) {
+    warning.style.display = "none";
+    backButton.disabled = false;
+  } else {
+    warning.style.display = "block";
+    warning.textContent = "Selected instruments do not support the chosen range.";
+    backButton.disabled = true;
+  }
+}
+
+let selectedRange = "middle"; // default
+
+document.querySelectorAll('input[name="range"]').forEach(radio => {
+  radio.addEventListener('change', (e) => {
+    selectedRange = e.target.value;
+    validateRangeAgainstInstruments(); // <-- validate immediately
+  });
+});
+
+function validateRangeAgainstInstruments() {
+  const selectedInstrumentNames = getSelectedInstrumentNames(); // from .primary/.secondary checkboxes
+  const allCompatible = selectedInstrumentNames.every(name => 
+    instruments[name].range.includes(selectedRange)
+  );
+
+  const warning = document.getElementById("rangeWarning");
+  const goToSelectionButton = document.getElementById("goToSelectionUI");
+
+  if (!allCompatible) {
+    warning.style.display = "block";
+    warning.textContent = "One or more selected instruments can't play in the selected range.";
+    goToSelectionButton.disabled = true;
+  } else {
+    warning.style.display = "none";
+    goToSelectionButton.disabled = false;
+  }
+}
+
+function checkSelection() {
+  const selectedInstrumentNames = getSelectedInstrumentNames();
+  const allCompatible = selectedInstrumentNames.every(name => 
+    instruments[name].range.includes(selectedRange)
+  );
+
+  const warning = document.getElementById("instrumentWarning");
+  const backButton = document.getElementById("backToGame");
+
+  if (selectedInstrumentNames.length > 0 && allCompatible) {
+    warning.style.display = "none";
+    backButton.disabled = false;
+  } else {
+    warning.style.display = "block";
+    warning.textContent = "Instruments must support the selected range.";
+    backButton.disabled = true;
+  }
+}
+
+function updateSelectedRange() {
+  selectedRange = Array.from(document.querySelectorAll('input[name="range"]:checked'))
+                       .map(checkbox => checkbox.value);
+}
+
+document.querySelectorAll('input[name="range"]').forEach(checkbox => {
+  checkbox.addEventListener('change', () => {
+    updateSelectedRange();
+    checkRangeSelection();             // ensures at least one is selected
+    validateRangeAgainstInstruments(); // ensures instruments support the selected ranges
+  });
+});
+
+function checkRangeSelection() {
+  const rangeWarning = document.getElementById("rangeSelectionWarning");
+  const proceedButton = document.getElementById("goToSelectionUI");
+
+  if (selectedRange.length === 0) {
+    rangeWarning.style.display = "block";
+    rangeWarning.textContent = "Please select at least one pitch range.";
+    proceedButton.disabled = true;
+  } else {
+    rangeWarning.style.display = "none";
+    proceedButton.disabled = false;
+  }
+}
+function validateRangeAgainstInstruments() {
+  const selectedInstrumentNames = getSelectedInstrumentNames(); // pull from .primary/.secondary checkboxes
+
+  const allCompatible = selectedInstrumentNames.every(name => {
+    const instRanges = instruments[name].range;
+    return selectedRange.some(r => instRanges.includes(r));
+  });
+
+  const warning = document.getElementById("rangeCompatibilityWarning");
+  const proceedButton = document.getElementById("goToSelectionUI");
+
+  if (!allCompatible) {
+    warning.style.display = "block";
+    warning.textContent = "One or more selected instruments do not support the chosen range(s).";
+    proceedButton.disabled = true;
+  } else {
+    warning.style.display = "none";
+    proceedButton.disabled = false;
+  }
+}
+
+function checkSelection() {
+  const selectedInstrumentNames = getSelectedInstrumentNames();
+
+  const allCompatible = selectedInstrumentNames.every(name => {
+    const instRanges = instruments[name].range;
+    return selectedRange.some(r => instRanges.includes(r));
+  });
+
+  const warning = document.getElementById("instrumentWarning");
+  const backButton = document.getElementById("backToGame");
+
+  if (selectedInstrumentNames.length > 0 && selectedRange.length > 0 && allCompatible) {
+    warning.style.display = "none";
+    backButton.disabled = false;
+  } else {
+    warning.style.display = "block";
+    warning.textContent = "Check instrument and range compatibility.";
+    backButton.disabled = true;
+  }
+}
