@@ -369,3 +369,32 @@ function addCheckboxListeners() {
 // Call after table is built and on page load
 addCheckboxListeners();
 checkSelection();
+
+##### Toggle to Options UI from Start Screen OR Game Screen #####
+<button class="optionsToggle">Options</button>
+<button class="optionsToggle">Options</button>document.querySelectorAll
+
+(".optionsToggle").forEach(button => {
+  button.addEventListener("click", () => {
+    // toggle options screen
+  });
+});
+
+##### Syntax for creating Radio Buttons #####
+
+<input type="radio" name="interval" value="unison" checked> Unison
+<input type="radio" name="interval" value="octaves"> Octaves
+<input type="radio" name="interval" value="both"> Both
+
+const interval = document.querySelector('input[name="interval"]:checked').value;
+
+##### JavaScript for showing/hiding UI screens #####
+
+function showScreen(screenId) {
+  const screens = ["startUI", "gameUI", "optionsUI", "instrumentUI"];
+  screens.forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
+  document.getElementById(screenId).classList.remove("hidden");
+}
+showScreen("gameUI");

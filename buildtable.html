@@ -5,60 +5,10 @@
   <meta charset="UTF-8">
   <title>Instrument Selection</title>
   <link rel="stylesheet" href="website_ui.css">
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 2rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-	margin-top: 0;
-	font-size: 1rem;
-    }
-    th, td {
-      border: 0px solid #ccc;
-      padding: 0;
-      text-align: center;
-    }
-    th:first-child, td:first-child {
-      text-align: left;
-    }
-
-    .select-options {
-	display: flex;
-	gap: .5rem;
-	justify-content: space-between;
-    }
-    .select-row {
-	text-size: .75rem;
-    }
-select {
-	padding: 0.5rem 1rem;
-	font-size: .8rem;
-	cursor: pointer;
-	border: 1px solid #333;
-	border-radius: 5px;
-	background: #eee;
-
-}
-	    #instrumentsTextBar {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-end;
-	    }
-	    #instrumentsText {
-		color: red;
-		max-width: 70%;
-		text-align: left;
-		display: block;
-		margin-left: 1rem;
-	    }
-  </style>
 </head>
 <body>
   <div class="main-box">
-  <div id="instrumentsTextBar"><h2>Instrument Selection</h2>
+  <div id="instrumentsTextBar"><h2>Instruments</h2>
   <span id="instrumentsText">Select an instrument.</span>
   </div>
 
@@ -76,6 +26,7 @@ select {
     </tbody>
   </table>
 <div class="select-options">
+<button id="backToOptions" class="uiToggle" data-screen="optionsUI">Back</button>
 <div class="select-row">
     <select id="both-selection" onchange="handleSelectChange(this.value, 'both')">
 	<option value="" disabled selected>Both:</option>
@@ -104,16 +55,17 @@ select {
     </select>  
 </div>
 
+
 </div>
   </div>
   <script src="data.js"></script>
   <script>
     // Score order override if needed
     const scoreOrder = [
-      "piccolo", "flute", "oboe", "clarinet", "bass-clarinet",
-      "alto-saxophone", "tenor-saxophone", "baritone-saxophone",
-      "bassoon", "trumpet", "horn", "trombone", "bass-trombone",
-      "euphonium", "tuba", "percussion"
+      "flute", "oboe", "bassoon", "clarinet", "bass-clarinet",
+      "alto-sax", "tenor-sax", "bari-sax",
+      "trumpet", "horn", "trombone",
+      "baritone", "tuba"
     ];
 
     const tableBody = document.getElementById("instrument-table-body");
@@ -146,20 +98,25 @@ select {
       } else {
 	applyAction(targetClass);
       }
+      checkSelection();
       document.getElementById(`${targetClass}-selection`).selectedIndex = 0;
     }
 
     function formatName(id) {
-      return id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      return id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     }
 
     function createRow(id, data) {
-      const row = document.createElement("tr");
+      	console.log(id);
+
+	const row = document.createElement("tr");
+
       row.innerHTML = `
         <td>${formatName(id)}</td>
         <td><input type="checkbox" checked class="primary" data-group="${data.group}" id="primary-${id}"></td>
         <td><input type="checkbox" checked class="secondary" data-group="${data.group}" id="secondary-${id}"></td>
       `;
+    
       tableBody.appendChild(row);
     }
 
@@ -173,29 +130,26 @@ select {
 
     function selectAll() {
       document.querySelectorAll('.primary, .secondary').forEach(cb => cb.checked = true);
-      checkSelection();
     }
 
     function deselectAll() {
       document.querySelectorAll('.primary, .secondary').forEach(cb => cb.checked = false);
-      checkSelection();
     }
 
     function selectWoodwinds() {
       deselectAll();
       document.querySelectorAll('[data-group="woodwind"]').forEach(cb => cb.checked = true);
-      checkSelection();
     }
 
     function selectBrass() {
       deselectAll();
       document.querySelectorAll('[data-group="brass"]').forEach(cb => cb.checked = true);
-      checkSelection();
     }
 
     buildTable();
 
 const warning = document.getElementById('instrumentsText');
+const backToOptions = document.getElementById('backToOptions');
 
 function checkSelection() {
   const primaryChecked = document.querySelectorAll('.primary:checked').length > 0;
@@ -203,8 +157,10 @@ function checkSelection() {
 
   if (primaryChecked && secondaryChecked) {
     warning.style.display = 'none';
+    backToOptions.disabled = false;
   } else {
     warning.style.display = 'block';
+    backToOptions.disabled = true;
   }
 }
 
