@@ -121,6 +121,10 @@ Remember: in calling const { instrument, name }, the property names MUST match.
 
 Removed "piano" option because it isn't a sustained instrument and it's not a band instrument. 
 
-Also removed "piccolo" because of range and tone issues.
+Also removed "piccolo" because of range and tone issues - may add back in later.
 
 Maybe consider 500 or 600 pixel height instead of 400.
+
+Removed "range" option - too complex for the scope of this project, AND if users want to practice a specific range, they could do so by selecting instruments in that range.
+
+So how do I handle the "tuba, flute, unison" problem? I suppose, since it's the only combination that creates an issue, to run a rangeCompatible() check when the user selects "unison" that only checks for: if primary = tuba && if secondary = flute || if primary = flute && secondary && tuba {displayWarningText(); disableGameButton(); That would force the user to choose another option or choose other instruments.

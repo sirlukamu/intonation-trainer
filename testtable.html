@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simplified Table</title>
+    <script src="data.js"></script>
+</head>
+<body>
+    <table>
+	<thead>
+	    <tr>
+		<th>Instrument</th>
+		<th>Primary</th>
+		<th>Secondary</th>
+	    </tr>
+	</thead>
+	<tbody id="instrument-table-body">
+	</tbody>
+    </table>
+    <script>
+	const tableBody = document.getElementById("instrument-table-body");
+
+	function formatName(id) {
+	// Used by createRow() to style text
+	return id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+	}
+
+	function createRow(id, data) {
+	// Used by createTable() to populate rows
+	    const row = document.createElement("tr");
+	    row.innerHTML = `<td>${formatName(id)}</td>
+		<td><input type="checkbox" checked class="primary" data-group="{$data.group}"
+id="primary-${id}"></td>
+		<td><input type="checkbox" checked class="secondary" data-group="{$data.group}" id="secondary-${id}"></td>`;
+	    tableBody.appendChild(row);
+	}
+
+	function createTable() {
+	// Used to populate table body.
+	    const keys = Object.keys(instruments);
+	    keys.forEach(id => { 
+		createRow(id, instruments[id]);
+	    });
+	}
+	createTable();
+    </script>
+</body>
+</html>
