@@ -35,9 +35,10 @@
     <button id="playPrimary" style="margin-right: 97px">Play Primary</button>
     <button id="playSecondary" style="margin-right: 110px">Play Secondary</button>
     <button id="playBoth">Play Both</button>
+    <button id="followUp">Follow Up</button>
   </div>
   </div>
-  <p> NOTE: not all sound files are completed yet. (6/8/2025)
+  <p> NOTE: not all sound files are completed yet. (6/8/2025) </p>
 
     <script>
 
@@ -84,7 +85,6 @@
 	console.log("Channel count:", audioContext.destination.channelCount);
         let audioBuffer = null;
 
-	
 	document.getElementById("playPrimary").addEventListener("click", playPrimary);
 	
 	document.getElementById("playSecondary").addEventListener("click", playSecondary);
@@ -93,6 +93,35 @@
 	  playPrimary();
 	  playSecondary();
 	});
+
+	document.getElementById("followUp").addEventListener('click', async () => {
+	    const primaryInstrument = document.getElementById("primary-instrument").value;
+	    const primaryNote = document.getElementById("primary-note").value;
+	    const primaryVersion = document.getElementById("primary-version").value;
+	    const primaryFilePath = `/audio/${primaryInstrument}/${primaryNote}-${primaryVersion}.mp3`;
+
+	    const secondaryInstrument = document.getElementById("secondary-instrument").value;
+	    const secondaryNote = document.getElementById("secondary-note").value;
+	    const secondaryVersion = document.getElementById("secondary-version").value;
+	    const secondaryFilePath = `/audio/${secondaryInstrument}/${secondaryNote}-${secondaryVersion}.mp3`;
+
+	    const primaryBuffer = await fetchAndDecode(primaryFilePath);
+	    const secondaryBuffer = await fetchAndDecode(secondaryFilePath);
+
+	    const duration = 2;
+  	    const detuneAmount = parseFloat(document.getElementById("detune-slider").value);
+	    playAudioBuffer(primaryBuffer, 0, -.8, 2);
+	    setTimeout(() => {
+		playAudioBuffer(secondaryBuffer, detuneAmount, .8, 2);
+	    }, duration * 1000);
+
+	});
+	async function fetchAndDecode(url) {
+	    const response = await fetch(url);
+	    const arrayBuffer = await response.arrayBuffer();
+	    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+	    return audioBuffer;
+	}
     </script>
 </body>
 </html>

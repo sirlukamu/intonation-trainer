@@ -120,7 +120,7 @@
 	    }
 	}      	
 
-      const filePath = `./audio/${secondary.name}/${newNote}${version}.mp3`
+      const filePath = `./audio/${secondary.name}/${newNote}${version}.mp3`;
       document.getElementById("secondaryText").textContent = `Playing: ${filePath}`;
       let secondaryBuffer = await loadAudioBuffer(filePath);
       playAudioBuffer(secondaryBuffer);

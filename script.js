@@ -23,15 +23,40 @@ async function loadAudioBuffer(filePath) {
 }
 
 // Defines playAudioBuffer function
-function playAudioBuffer(audioBuffer, detuneAmount = 0, panValue = 0) {
+function playAudioBuffer(audioBuffer, detuneAmount = 0, panValue = 0, duration = 4) {
   const source = audioContext.createBufferSource();
   source.buffer = audioBuffer;
+
+  const gainNode = audioContext.createGain();
   const panner = audioContext.createStereoPanner();
   panner.pan.value = panValue;
+
   const detuneRatio = Math.pow(2, detuneAmount / 1200);
   source.playbackRate.value = detuneRatio;
-  source.connect(panner).connect(audioContext.destination);
-  source.start();
+
+  source.connect(panner).connect(gainNode).connect(audioContext.destination);
+
+  const now = audioContext.currentTime;
+  gainNode.gain.setValueAtTime(1, now);
+  gainNode.gain.setValueAtTime(1, now + duration);
+  gainNode.gain.linearRampToValueAtTime(0, now + duration + .5);
+
+  source.start(now)
+  console.log(`Playing ${audioBuffer}`);
+  source.stop(now + duration);
+
+  // Allows stopAllAudio() to work by tracking array of audio sources.
+  activeSources.push(source); // Requires global variable let activeSources = [];
+}
+
+function stopAllAudio() {
+  activeSources.forEach(source => {
+    try {
+      source.stop();
+    } catch (e) {
+    }
+  });
+  activeSources = [];
 }
 
 async function playPrimary () {

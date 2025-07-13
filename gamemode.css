@@ -1,0 +1,66 @@
+
+	body {
+	    height: 100vh;
+	    background: #88cccc;
+	    color: #002222;
+	    font-family: monaco, monospace;
+	    text-align: center;
+	}
+	button {
+	    font-size: 1.25rem;
+	    padding: 1rem;
+	    border: 2px solid black;
+	    background: white;
+	    border-radius: 10px;
+	    cursor: pointer;
+	}
+	button:hover {
+	    background: #ddd;
+	}
+	button:active {
+	    background: #dfd;
+	}
+	.ui-container {
+	    width: 350px;
+	    height: 600px;
+	    border: solid black 2px;
+	    border-radius: 10px;
+	    background: #ddffff;
+	}
+	.center {
+	    margin: 1rem auto;
+	}
+	.vert-center {
+	    display: flex;
+	    justify-content: center;
+	    align-items: center;
+	}
+	.hidden {
+	    display: none;
+	}
+	.game-button {
+	    font-size: 1.25rem;
+	    width: 150px;
+	    height: 100px;
+	}
+	#repeat-button {
+	    width: 250px;
+	    font-size: 1.25rem;
+	    margin-top: 25px;
+	}
+	#2-buttons {
+	    display: flex;
+	}
+	.timer-area {
+	    margin-top: 10px;
+	    font-size: 2rem;
+	}
+	.text-display {
+	    height: 100px;
+	    background: white;
+	    margin-bottom: 50px;
+	}
+	.score-area{
+	    font-size: 2rem;
+	    margin-top: 100px;
+	}

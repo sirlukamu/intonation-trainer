@@ -547,3 +547,64 @@ function checkSelection() {
     backButton.disabled = true;
   }
 }
+
+##### Using Gain Nodes to Control Duration #####
+document.getElementById("followUp").addEventListener('click', async () => {
+  const primaryInstrument = document.getElementById("primary-instrument").value;
+  const primaryNote = document.getElementById("primary-note").value;
+  const primaryVersion = document.getElementById("primary-version").value;
+  const primaryFilePath = `/audio/${primaryInstrument}/${primaryNote}-${primaryVersion}.mp3`;
+
+  const secondaryInstrument = document.getElementById("secondary-instrument").value;
+  const secondaryNote = document.getElementById("secondary-note").value;
+  const secondaryVersion = document.getElementById("secondary-version").value;
+  const secondaryFilePath = `/audio/${secondaryInstrument}/${secondaryNote}-${secondaryVersion}.mp3`;
+
+  const primaryBuffer = await fetchAndDecode(primaryFilePath);
+  const secondaryBuffer = await fetchAndDecode(secondaryFilePath);
+
+  const duration = 2; // seconds
+
+  // Play primary immediately
+  playAudioBuffer(primaryBuffer);
+  
+  // Play secondary after 2 seconds
+  setTimeout(() => {
+    playAudioBuffer(secondaryBuffer);
+  }, duration * 1000);
+});
+
+async function fetchAndDecode(url) {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  return audioBuffer;
+}
+
+function playAudioBuffer(audioBuffer, detuneAmount = 0, panValue = 0, duration = 2) {
+  const source = audioContext.createBufferSource();
+  source.buffer = audioBuffer;
+
+  const gainNode = audioContext.createGain();
+  const panner = audioContext.createStereoPanner();
+  panner.pan.value = panValue;
+
+  const detuneRatio = Math.pow(2, detuneAmount / 1200);
+  source.playbackRate.value = detuneRatio;
+
+  source.connect(panner).connect(gainNode).connect(audioContext.destination);
+
+  source.start();
+
+  // Schedule fade out
+  gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration);
+  source.stop(audioContext.currentTime + duration);
+}
+
+const now = audioContext.currentTime;
+gainNode.gain.setValueAtTime(1, now);                           // Full volume immediately
+gainNode.gain.setValueAtTime(1, now + 2);                       // Hold full volume for 2s
+gainNode.gain.linearRampToValueAtTime(0, now + 2.5);           // Fade out over 0.5s
+
+source.stop(now + 2.5); // Stop after fade-out completes
