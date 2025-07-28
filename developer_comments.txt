@@ -128,3 +128,31 @@ Maybe consider 500 or 600 pixel height instead of 400.
 Removed "range" option - too complex for the scope of this project, AND if users want to practice a specific range, they could do so by selecting instruments in that range.
 
 So how do I handle the "tuba, flute, unison" problem? I suppose, since it's the only combination that creates an issue, to run a rangeCompatible() check when the user selects "unison" that only checks for: if primary = tuba && if secondary = flute || if primary = flute && secondary && tuba {displayWarningText(); disableGameButton(); That would force the user to choose another option or choose other instruments.
+
+##### Welcome Back! ##### 7/27/2025
+
+TL;DR: gamemode.html is a prototype of game structure, website_ui2.html for user interface, each with a separate css file. script and data js files for instruments and functionality. 
+
+It has been a month at least since I've looked at this project. Today, I remade all of the audio assets by using TonalEnergy sounds manually played through BlueTooth into Audacity on my computer to a metronome at 60bpm. This will have to work for now. It's the best audio I could find without vibrato. Maybe at some point in the future, I can slowly work toward creating audio assets using actual musicians playing in a studio setting, but not before I create a finished working product.
+
+Let's take stock of where we're at and where we need to go. I have two main prototypes. WEBSITE_UI.HTML is what I used to create a navigable website with different UIs for a welcome screen, main game mode screen, an options screen, and another options screen for instrument selection. WEBSITE_UI2.HTML added checkbox functionality for the instrument selection screen. GAMEMODE.HTML is what I used to create a working prototype without any options, just the game cycle in easy mode. This allowed me to test the in/out stage and sharp/flat stage, with replay audio button and providing user feedback on correct and incorrect answers.
+
+My AUDIOTEST.HTML file allows me to manually choose which instrument and note to play. I plan to continue using this file as I edit and export all of my note sound files, so that I can check for sound quality early rather than edit everything and then have to go back to fix problems. Question I have: does -6dB sound louder at higher frequencies? Like C2 at -6dB versus C5 or C7? Also, I decided to just stick with ONE VERSION of each audio file. I don't think, especially with the computer generated audio, that having Bb4-a and Bb4-b is really going to sound much different than just playing the same file twice, especially since I will be panning it from left and right speakers.
+
+Now, one of the big issues I was wrestling with before I paused this project was how to deal with users selecting tuba and flute (no overlapping notes) and unison. Rather than trying to come up with some logical check and forcing users to figure it out, I think I've settled on the simple solution: users will be able to select ONE INSTRUMENT for both primary and secondary, rather than being able to select one for primary and a different for secondary. This still allows users to choose something like "Flute" so they can practice that instrument specifically. I still don't know if I'll let users choose multiple instruments, or maybe include buttons that select "upper brass" "upper woodwinds" "LB" "LWW" as a batch option. I don't know if I want to have a "high" "medium" "low" option that picks notes from specific octaves (1-3, 3-5, 5-7).
+
+The GENERATE_BOTH.HTML file helped me figure out how to pick a random first tone, decide unison or octave, and then pick a second tone. INTONATION_TRAINER.HTML helped me figure out the gameplay structure. TESTTABLE.HTML helped me figure out how to populate a table, and BUILDTABLE.HTML helped me add functionality to the table. UI_TEST.HTML was an intermediary step towards the main prototype.
+
+For my CSS files, I have gamemode.css that is used with gamemode.html and website_ui.css that is used with website_ui2.html. These are separate documents, and I made website_ui first. gamemode was an attempt of recreating a new but similar feel without copying anything directly, focused on the simplified format of gamemode.html.
+
+Finally, I have some JavaScript (.js) files. DATA.JS includes information about instruments. Note that I changed the naming convention to include lower case and hyphens, like "alto-sax", to help with populating tables. I may still need to change my audio folder names to match (I am still only working with flute, trumpet, baritone, but that will soon change). SCRIPT.JS contains the main playback functions, parsing notes, selecting random instruments and notes. TIMERSCRIPT.JS was a result of adding a timer to my gamemode.html prototype, and simply starts a timer when called.
+
+- - - - - - - - - - - - - - - - - 
+
+To finish the project:
+1) Export a small representative batch of audio assets (maybe "all Fs" for every instrument) and test for audio quality with AUDIOTEST.HTML. Are volumes equal between octaves? Does "in tune" sound in tune? How small of a difference for "hard" difficulty, 5 cents, 3 cents, 1 cent?
+2) Continue to develop GAMEMODE.HTML to add options screen and functionality, finalize style decisions.
+
+Decisions:
+a) Is there a way to make it so that users can choose EITHER by instrument or by range? Maybe Instrument could be a drop-down menu, only able to select one at a time, but add "woodwinds" or "brass" or "all".
+b) Do we make an ending? Like, play to 10 points? Play for timer? I had "free play" "countdown" and "challenge" earlier. 
