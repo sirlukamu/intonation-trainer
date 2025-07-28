@@ -108,7 +108,7 @@
     async function playPrimary () {
   	const primaryInstrument = document.getElementById("primary-instrument").value;
   	const primaryNote = document.getElementById("primary-note").value;
-  	let primaryFilePath = `/tempaudio/${primaryInstrument}/${primaryNote}.mp3`;
+  	let primaryFilePath = `tempaudio/${primaryInstrument}/${primaryNote}.mp3`;
   	console.log("Trying to fetch:", primaryFilePath);
   	let primaryBuffer = await loadAudioBuffer(primaryFilePath);
 	let panAmount = parseInt(document.getElementById("pan-slider").value) / 100;
@@ -118,7 +118,7 @@
     async function playSecondary () {
   	const secondaryInstrument = document.getElementById("secondary-instrument").value;
   	const secondaryNote = document.getElementById("secondary-note").value;
-  	const secondaryFilePath = `/tempaudio/${secondaryInstrument}/${secondaryNote}.mp3`;
+  	const secondaryFilePath = `tempaudio/${secondaryInstrument}/${secondaryNote}.mp3`;
   	console.log("Trying to fetch:", secondaryFilePath);
   	let secondaryBuffer = await loadAudioBuffer(secondaryFilePath);
   	let detuneAmount = parseFloat(document.getElementById("detune-slider").value);
@@ -215,11 +215,11 @@
 	stopAllAudio();
 	const primaryInstrument = document.getElementById("primary-instrument").value;
 	const primaryNote = document.getElementById("primary-note").value;
-	const primaryFilePath = `/tempaudio/${primaryInstrument}/${primaryNote}.mp3`;
+	const primaryFilePath = `tempaudio/${primaryInstrument}/${primaryNote}.mp3`;
 
 	const secondaryInstrument = document.getElementById("secondary-instrument").value;
 	const secondaryNote = document.getElementById("secondary-note").value;
-	const secondaryFilePath = `/tempaudio/${secondaryInstrument}/${secondaryNote}.mp3`;
+	const secondaryFilePath = `tempaudio/${secondaryInstrument}/${secondaryNote}.mp3`;
 
 	const primaryBuffer = await fetchAndDecode(primaryFilePath);
 	const secondaryBuffer = await fetchAndDecode(secondaryFilePath);
