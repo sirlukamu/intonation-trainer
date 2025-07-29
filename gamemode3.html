@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gamemode 3</title>
+
+    <!-- Working document CSS instead of linking separate .css stylesheet -->
+    <style>
+	body {
+	    height: 100vh;
+	    background: #88cccc;
+	    color: #002222;
+	    font-family: monaco, monospace;
+	    text-align: center;
+	}
+	button {
+	    font-size: 1.25rem;
+	    padding: 1rem;
+	    border: 2px solid black;
+	    background: white;
+	    border-radius: 10px;
+	    cursor: pointer;
+	}
+	button:hover {
+	    background: #ddd;
+	}
+	button:active {
+	    background: #dfd;
+	}
+	.ui-container {
+	    width: 350px;
+	    height: 600px;
+	    border: solid black 2px;
+	    border-radius: 10px;
+	    background: #ddffff;
+	}
+	.center {
+	    margin: 1rem auto;
+	}
+	.vert-center {
+	    display: flex;
+	    justify-content: center;
+	    align-items: center;
+	}
+	.hidden {
+	    display: none;
+	}
+	.game-button {
+	    font-size: 1.25rem;
+	    width: 150px;
+	    height: 100px;
+	}
+	#repeat-button {
+	    width: 250px;
+	    font-size: 1.25rem;
+	    margin-top: 25px;
+	}
+	#2-buttons {
+	    display: flex;
+	}
+	.timer-area {
+	    margin-top: 10px;
+	    font-size: 2rem;
+	}
+	.text-display {
+	    height: 100px;
+	    background: white;
+	    margin-bottom: 50px;
+	}
+	.score-area{
+	    font-size: 2rem;
+	    margin-top: 100px;
+	}
+	.wave-graphic{
+
+	}
+    </style>
+    <script src="datacopy.js"></script>
+</head>
+
+<body>
+    <h1 class="center">Intonation Trainer</h1>
+    <div class="ui-container center vert-center">
+
+	<!-- Start Button on page load -->
+	<div class="vert-center hidden"> <!-- hidden while making changes to gameControls -->
+	    <button id="gameStart" class="">Start Game</button>
+	</div>
+
+	<!-- Main UI Buttons on game start -->
+	<div id="gameControls" class="game-controls">
+
+	    <!-- TODO: create graphics to identify which note is playing
+	    <div class="wave-graphic">
+		<canvas id="primaryCanvas" width="175px" height="80px" style="border: 2px solid black; border-radius: 10px">
+		<canvas id="secondaryCanvas" width="175px" height="80px" style="border: 2px solid black; border-radius: 10px">
+	    </div>
+	    -->
+	    <div id="2-buttons">
+		<button class="game-button " id="in-sharp">In Tune</button>
+		<button class="game-button " id="out-flat">Out of Tune</button>
+	    </div>
+
+	    <div id="1-button">
+		<button id="repeat-button" class="">Replay Audio</button>
+	    </div>
+	    <div class="text-display">
+		<span id="textContent">Feedback</span>
+	    </div>
+	    <div class="score-area">
+		<label>Score: </label><span id="score">0</span>
+	    </div>
+
+	    <div class="timer-area">
+		<span id="timerDisplay" class="">00:00</span>
+		<button id="pauseButton" class="">Pause</button>
+	    </div>
+
+	</div>
+    </div>
+
+    <script>
+
+	const audioContext = new (window.AudioContext);
+	const textContent = document.getElementById("textContent");
+	const gameStart = document.getElementById("gameStart");
+	const buttonOne = document.getElementById("in-sharp");
+	const buttonTwo = document.getElementById("out-flat");
+	const repeatButton = document.getElementById("repeat-button");
+	const gameControls = document.getElementById("gameControls");
+	const scoreText = document.getElementById("score");
+	
+	// Declare global variables
+	let score = 0;
+
+	// Starts the game when user clicks start
+	gameStart.addEventListener('click', () => {
+	    gameStart.classList.add("hidden");
+	    gameStarted = true;
+	    gameControls.classList.remove("hidden");
+	    startTimer();
+	    nextRound();
+	});
+
+	let round = "inorout";
+	let gameStarted = false;
+	let primary = null;
+	let secondary = null;
+	let primaryBuffer = null;
+	let secondaryBuffer = null;
+	let inTune = true;
+	let detuneAmount = 0;
+	let difficulty = 35;
+	let sign = 1;
+	let duration = 2;
+	let panLeft = -.8;
+	let panRight = .8;
+	let activeSources = [];
+	let intervalType = null;
+
+	function parseNote(input) {
+  	    const note = input.slice(0, -1); // assumes all notes have a 1-digit octave
+  	    const octave = parseInt(input.slice(-1), 10);
+  	    return { note, octave };
+	}
+
+	// Defines loadAudioBuffer function
+	async function loadAudioBuffer(filePath) {
+  	    const response = await fetch(filePath);
+  	    const arrayBuffer = await response.arrayBuffer();
+  	    return await audioContext.decodeAudioData(arrayBuffer);
+	}
+
+	// Defines playAudioBuffer function
+	function playAudioBuffer(audioBuffer, detuneAmount = 0, panValue = 0, duration = 4) {
+  	    const source = audioContext.createBufferSource();
+  	    source.buffer = audioBuffer;
+
+  	    const gainNode = audioContext.createGain();
+  	    const panner = audioContext.createStereoPanner();
+  	    panner.pan.value = panValue;
+
+  	    const detuneRatio = Math.pow(2, detuneAmount / 1200);
+  	    source.playbackRate.value = detuneRatio;
+
+  	    source.connect(panner).connect(gainNode).connect(audioContext.destination);
+
+  	    const now = audioContext.currentTime;
+  	    gainNode.gain.setValueAtTime(1, now);
+  	    gainNode.gain.setValueAtTime(1, now + duration);
+  	    gainNode.gain.linearRampToValueAtTime(0, now + duration + .5);
+
+  	    source.start(now);
+  	    source.stop(now + duration);
+
+  	    // Allows stopAllAudio() to work by tracking array of audio sources.
+  	    activeSources.push(source); // Requires global variable let activeSources = [];
+	}
+
+	function stopAllAudio() {
+  	    activeSources.forEach(source => {
+    		try {
+      		    source.stop();
+    		} catch (e) {
+    		}
+  	    });
+  	    activeSources = [];
+	}
+
+    	function randomInstrument() {
+	    const keys = Object.keys(instruments);
+	    const name = keys[Math.floor(Math.random() * keys.length)];
+	    const instrument = instruments[name];
+	    return { instrument, name };
+	}
+
+	// Returns an object to be used as file path for loadAudioBuffer(filePath);
+    	function generateRandom() {
+	    const { instrument, name } = randomInstrument();
+	    const pitch = instrument.pitches[Math.floor(Math.random() * instrument.pitches.length)];
+	    return {
+	  	filePath: `tempaudio/${name}/${pitch}.mp3`,
+	  	name: name,
+	  	pitch: pitch,
+	    };
+    	}
+
+	async function nextRound() {
+	    round = "inorout";
+	    console.log(`Round = ${round}`);
+	    buttonOne.innerHTML = "In Tune";
+	    buttonTwo.innerHTML = "Out of Tune";
+	    inTune = Math.random() < 0.5 ? true : false;
+	    console.log(`inTune = ${inTune}`);
+	    if (inTune) {
+		detuneAmount = 0;
+	    } else {
+		sign = Math.random() < 0.5 ? 1 : -1;
+		detuneAmount = (sign * difficulty);
+	    }
+	    primary = generateRandom();
+	    console.log(`Primary: ${primary.name} ${primary.pitch}`)
+	    primaryBuffer = await loadAudioBuffer(primary.filePath);
+	    let newNote = null;
+	    intervalType = Math.random() < 0.5 ? "octave" : "unison";
+	    console.log(`intervalType = ${intervalType}`);
+	    if (intervalType === "octave") {
+	    // Suggestion: Write all of this as a function: newNote = findOctave();
+		secondary = generateRandom();
+		let primaryInstrument = instruments[primary.name];
+		let secondaryInstrument = instruments[secondary.name];
+		const parsedNote = parseNote(primary.pitch);
+
+		if (primaryInstrument.octave === secondaryInstrument.octave) {
+		    const direction = Math.random() < .5 ? 1 : -1;
+		    const distances = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
+		    for (let i = 0; i < distances.length; i++) {
+			const testOctave = parsedNote.octave + (distances[i] * direction);
+			const candidate = parsedNote.note + testOctave;
+			if (secondaryInstrument.pitches.includes(candidate)) {
+			    newNote = candidate;
+			    break;
+			}
+		    }
+		} else {
+		    let normalizedOctave = secondaryInstrument.octave - primaryInstrument.octave;
+		    let testOctave = parsedNote.octave + normalizedOctave;
+		    let candidate = parsedNote.note + testOctave;
+		    if (secondaryInstrument.pitches.includes(candidate)) {
+			newNote = candidate;
+		    } else {
+          	    	const direction = Math.random() < .5 ? 1 : -1;
+          	    	const distances = [1, -1, 2, -2, 3, -3, 4, -4];
+          	    	for (let i = 0; i < distances.length; i++) {
+	    		    testOctave = parsedNote.octave + (distances[i] * direction);
+	    		    candidate = parsedNote.note + testOctave;
+	    		    if (secondaryInstrument.pitches.includes(candidate)) {
+	      		    	newNote = candidate;
+	      		    	break;
+          	    	    }
+			}
+		    }
+		}
+	    } else {
+	    // Suggestion: Write all of this as a function: newNote = findUnison();
+		secondary = generateRandom();
+		newNote = primary.pitch;
+		let pitches = [];
+		let name = "";
+		let instrument = null;
+		const keys = Object.keys(instruments);
+		while (!pitches.includes(primary.pitch)) {
+		    name = keys[Math.floor(Math.random() * keys.length)];
+		    instrument = instruments[name];
+		    pitches = instrument.pitches;
+		    secondary.name = name;
+		}
+	    }
+	    const filePath = `tempaudio/${secondary.name}/${newNote}.mp3`;
+	    secondaryBuffer = await loadAudioBuffer(filePath);
+	    playAudioBuffer(primaryBuffer);
+	    console.log(`${primary.filePath}`);
+	    playAudioBuffer(secondaryBuffer, detuneAmount);
+	    console.log(`Secondary: ${secondary.name} ${newNote} ${detuneAmount}`);
+	    console.log(`Secondary: ${filePath}`);
+	}
+
+	function followUp () {
+	    round = "sharporflat";
+	    console.log(`Round = ${round} Sign = ${sign}`);
+	    buttonOne.innerHTML = "Sharp";
+	    buttonTwo.innerHTML = "Flat";
+	    playAudioBuffer(primaryBuffer, 0, panLeft, duration);
+	    setTimeout(() => {
+		playAudioBuffer(secondaryBuffer, detuneAmount, panRight, duration);
+	    }, duration * 1000);
+	}
+
+	buttonOne.addEventListener('click', () => {
+	// Button One says "In Tune" or "Sharp"
+	    stopAllAudio();
+	    if ((round === "inorout") && (inTune)) {
+		textContent.innerHTML = `Correct! They are in tune.`;
+		score++;
+		scoreText.innerHTML = `${score}`;
+		nextRound();
+	    }
+	    else if ((round === "inorout") && (!inTune)) {
+		// Incorrect!
+		textContent.innerHTML = `Incorrect. They are out of tune.`;
+		followUp();
+	    }
+	    else if ((round === "sharporflat") && (sign === 1)) {
+		textContent.innerHTML = `Correct! Sharp by ${detuneAmount.toFixed(1)} cents`;
+		score++;
+		difficulty = difficulty * .8;
+		scoreText.innerHTML = `${score}`;
+		nextRound();
+	    }
+	    else if ((round === "sharporflat") && (sign === -1)) {
+		// Incorrect!
+		textContent.innerHTML = `Incorrect. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
+		difficulty = difficulty / .8;
+		nextRound();
+	    }
+	});
+
+	buttonTwo.addEventListener('click', () => {
+	// Button Two says "Out of Tune" or "Flat"
+	    stopAllAudio();
+	    if ((round === "inorout") && (inTune)) {
+		// Incorrect!
+		textContent.innerHTML = `Incorrect. They are in tune.`;
+		nextRound();
+	    }
+	    else if ((round === "inorout") && (!inTune)) {
+		// Correct!
+		textContent.innerHTML = `Correct! Is the second note sharp or flat?`;
+		score++;
+		scoreText.innerHTML = `${score}`;
+		followUp();
+	    }
+	    else if ((round === "sharporflat") && (sign === 1)) {
+		// Incorrect!
+		textContent.innerHTML = `Incorrect. Sharp by ${detuneAmount.toFixed(1)} cents`;
+		difficulty = difficulty / .8;
+		nextRound();
+	    }
+	    else if ((round === "sharporflat") && (sign === -1)) {
+		// Correct!
+		textContent.innerHTML = `Correct. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
+		score++;
+		scoreText.innerHTML = `${score}`;
+		difficulty = difficulty * .8;
+		nextRound();
+	    }
+	});
+
+	// Allows user to replay the audio.
+	repeatButton.addEventListener('click', () => {
+	    stopAllAudio();
+	    if (round === "inorout") {
+	    	playAudioBuffer(primaryBuffer);
+	   	playAudioBuffer(secondaryBuffer, detuneAmount);
+	    } else {
+	    	playAudioBuffer(primaryBuffer, 0, panLeft, duration);
+	    	setTimeout(() => {
+		    playAudioBuffer(secondaryBuffer, detuneAmount, panRight, duration);
+	    	}, duration * 1000);
+	    }
+	});
+	
+    </script>
+    <script>
+	// Call startTimer();
+
+	const timerDisplay = document.getElementById("timerDisplay");
+	const pauseButton = document.getElementById("pauseButton");
+
+	let timer = 0;
+	let timerInterval = null;
+	let isPaused = false;
+
+	function updateTimerDisplay() {
+	    const minutes = String(Math.floor(timer / 60)).padStart(2, '0');
+	    const seconds = String(timer % 60).padStart(2, '0');
+	    timerDisplay.textContent = `${minutes}:${seconds}`;
+	}
+
+	function startTimer() {
+	    if (timerInterval) return; // Prevent multiple intervals
+	    timerInterval = setInterval(() => {
+	        if (!isPaused) {
+	            timer++;
+	            updateTimerDisplay();
+	        }
+	    }, 1000);
+	}
+
+	pauseButton.addEventListener('click', () => {
+	    isPaused = !isPaused;
+	    pauseButton.textContent = isPaused ? "Resume" : "Pause";
+	});
+    </script>
+
+</body>
+</html>

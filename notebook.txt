@@ -1,0 +1,48 @@
+### Taking notes ###
+
+--- CSS, specifically as used here:
+.waveform-container {
+    position: relative;
+    width: 150px;
+    height: 60px;
+    background-color: #333;
+    margin-bottom: 10px;
+}
+    <div class="waveform-container">
+        <canvas id="primaryWaveCanvas" width="400" height="100"></canvas>
+        <div class="overlay-text">
+            <div id="primaryInstrumentName">Clarinet</div>
+            <div id="primaryInstrumentNote">F4</div>
+        </div>
+    </div>
+The waveform-container div encompasses the canvas and the overlay text.
+By assigning position: relative, child elements can be positioned relative to the container.
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+Now, because the canvas w/h is a %, it stretches to fill the waveform-cointainer div visually. The <canvas> 400/100 size controls the rendering resolution.
+Display: block makes it so that everything is stacked on top of each other, like blocks. Each element takes up 100% of the width, forcing the next element on a new line below it. 
+Note the canvas is separate from the overlay-text div.
+.overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    pointer-events: none;
+}
+Because the overlay-text div is a child of the waveform-container, giving it "absolute" position allows me to position it anywhere within the container. 
+
+Top and left at 50% positions the top-left corner of the text container in the center.
+Transform: translate(-50%, -50%) shifts the text back so that the center of the text aligns with the center of the container.
+In other words, get rid of top, left, and transform, the text will appear as normal, justified to the top right corner. Use just top and left, the text moves to start in the middle of the container. Use just transform, and the text will be justified center, but the center will be at the top right corner of the container. That's why you need to both transform (justify) and position (top and left) to have it centered and justified.
+Another way to do this is to use display: flex and then use justify-content: center; and align-items: center; or to use display: grid and place-items: center;
+
+
+Text-align: center only applies if the text becomes multiple lines long - I don't need that for this project, but it is good to know.
+Pointer-events: none means that you can't click on or highlight text. Clicks go through to the canvas below it.
