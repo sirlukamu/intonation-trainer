@@ -38,10 +38,10 @@
 <body>
     <div class="waveform-container">
         <div class="overlay-text">
-            <div id="primaryInstrumentName">Clarinet</div>
-            <div id="primaryInstrumentNote">F4</div>
+            <div id="primaryInstrumentName">French Horn</div>
+            <div id="primaryInstrumentNote">F2</div>
         </div>
-        <canvas id="primaryWaveCanvas" width="400" height="100"></canvas>
+        <canvas id="primaryWaveCanvas" width="300" height="120"></canvas>
 
     </div>
 
@@ -56,6 +56,7 @@
         let analyser;
         let sourceNode;
         let dataArray;
+	let bufferLength;
         let animationId;
         let audioBuffer;
 
@@ -63,9 +64,12 @@
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 64;
+                analyser.fftSize = 2048;
 
-                const response = await fetch("tempaudio/clarinet/F4.mp3");
+		bufferLength = analyser.frequencyBinCount;
+	 	dataArray = new Uint8Array(bufferLength);
+
+                const response = await fetch("tempaudio/french-horn/F2.mp3");
                 const arrayBuffer = await response.arrayBuffer();
                 audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
             }
@@ -77,16 +81,16 @@
             analyser.getByteTimeDomainData(dataArray);
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 4;
             ctx.strokeStyle = "lime";
             ctx.beginPath();
 
-            const sliceWidth = canvas.width * 1.0 / bufferLength;
+            const sliceWidth = canvas.width * 1.5 / bufferLength;
             let x = 0;
 
             for (let i = 0; i < bufferLength; i++) {
-                const v = dataArray[i] / 255.0; // normalize to [0, 2]
-                const y = v * canvas.height;
+                const v = dataArray[i] / 128.0; // normalize to [0, 2]
+                const y = (v * canvas.height) / 2;
 
                 if (i === 0) {
                     ctx.moveTo(x, y);
@@ -117,9 +121,6 @@
 
             sourceNode.start();
             drawWaveform();
-
-            // Stop after 5 seconds
-
         }
 
         playButton.addEventListener("click", playAudio);
