@@ -1,6 +1,5 @@
-### Taking notes ###
+### CSS - Containers and Relative/Absolute ###
 
---- CSS, specifically as used here:
 .waveform-container {
     position: relative;
     width: 150px;
@@ -46,3 +45,7 @@ Another way to do this is to use display: flex and then use justify-content: cen
 
 Text-align: center only applies if the text becomes multiple lines long - I don't need that for this project, but it is good to know.
 Pointer-events: none means that you can't click on or highlight text. Clicks go through to the canvas below it.
+
+### JS - Array Methods ###
+
+In Javascript, an array is an ordered list and an object is a key:value pair. 
