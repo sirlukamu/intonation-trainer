@@ -46,6 +46,74 @@ Another way to do this is to use display: flex and then use justify-content: cen
 Text-align: center only applies if the text becomes multiple lines long - I don't need that for this project, but it is good to know.
 Pointer-events: none means that you can't click on or highlight text. Clicks go through to the canvas below it.
 
-### JS - Array Methods ###
+### JS - Objects, Arrays and .entries() Method ###
 
-In Javascript, an array is an ordered list and an object is a key:value pair. 
+In Javascript, an array is an ordered list and an object is a key-value pair. In my project, the object instruments{} contains a list of 15 key-value pairs. Keys are strings like "name" or "age", or it could be strings like "flute" or "trumpet". Each key is then paired with a value. The value can be any type of data, another string like "Luke" or an integer like "36", or it could be an array or another object. In my project, each key is paired with another object which contains three more keys: octave, group, and pitches. Octave is an integer, group is a string, and pitches is an array of strings. 
+
+Right now, I am familiar with the Object method .keys(), which returns an array of the keys in an object. I could use that to populate a dropdown list, but that wouldn't let me access the value of each key. Today I learned a new Object method .entries()
+
+.filter() is used with arrays, not objects. So I need to convert instruments into an array so that it can be filtered. 
+
+Object.entries(object) turns an object into an array of key-value pairs without losing any data. so if I have:
+	let instruments = {
+	    "flute": {
+		octave: 1,
+		group: "woodwind",
+		pitches: ["F4", "F5", "F6"]
+	    },
+	    "trumpet": {
+		octave: 0,
+		group: "brass",
+		pitches: ["F3", "F4", "F5"]
+	    }
+	};
+and then call:
+	const instruments_array = Object.entries(instruments);
+It will return:
+	instruments_array = [
+	    ["flute", {octave: 1, group: "woodwind", pitches: ["F4"...] }]
+	    ["trumpet", {octave: 0, group: "brass", pitches: ["F3"...] }]
+	]
+So now instruments.flute.octave === instruments_array[0][1].octave
+
+
+### JS - .filter(), .map(), and => arrow functions ###
+
+In order to make my activeInstrumentsList based on the <button value="(name)"> value, because I want the user to be able to select, for example, all brass instruments, I needed to learn to use the .filter() method on an array. 
+
+const activeInstrumentsList = Object.entries(instruments)
+  .filter(([name, data]) => data.group.includes("brass"))
+  .map(([name, _]) => name);
+
+Object.entries(instruments) → returns an array activeInstrumentsList = [["baritone", {...}], ["flute", {...}]]
+
+--- How .filter() works ---
+
+The ([name, data]) in .filter() uses array destructuring to create variables using the [key, value] pairs in the activeInstrumentsList array, so for the first item name = "flute" and data = { octave: 1, group: "woodwind", pitches: ["F4",...] }.
+
+Another way to think of .filter() is to get a list of the saxophones from the const instrumentKeys = Object.keys(instruments) - remember that .keys() returns an array of strings, one for each object key. So writing:
+	const saxes = instrumentKeys.filter(
+
+=> defines a function inline. so instead of writing: (I'm still very confused on =>)
+
+	.filter(function([name, data]) {  (Maybe I'm confused on function([array]))
+	    return data.group.includes("brass")
+	};
+or
+	function includesGroup([name, data]) {
+	    return data.group.includes("brass")
+	}
+	.filter(includesGroup([name, data]); (I'm getting confused here)
+I can define and call a function using the arrow function:
+
+	.filter(([name, data]) => data.group.includes("brass"))
+
+so now activeInstrumentsList is an array that only includes key-value pairs where the value object has the property "group" that includes the element "brass"
+
+The .map() method creates a new array populated with the results of calling the function on every element in the array. In this case,
+  	.map(([name, _]) => name); (I'm confused by this function)
+deconstructs each array in the filtered list to create name = [0] _ = [1]. Because we only want the name of each instrument, not the object associated with it, we use _ by convention. Saying [name, _] = name essentially turns the array pair into a string. After calling on every item in the filtered list, the result is something like:
+	
+	activeInstrumentsList = ["trumpet", "french-horn"...];
+
+
