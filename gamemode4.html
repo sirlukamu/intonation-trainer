@@ -163,12 +163,18 @@
 		    <option value="low">Low Voices</option>
 		</select>
 	    </div>
+	    <div>
+		<button>Back</button>
+	    </div>
 	</div>
     </div>
 
     <script>
+
 	const selectInstrumentDropdown = document.getElementById("selectInstrumentDropdown");
 	const instrumentKeys = Object.keys(instruments);
+	let activeInstrumentList = instrumentKeys;
+	let requireNextRound = false;
 
 	function populateInstrumentDropdown() {
 	    for (let i = 0; i < instrumentKeys.length; i++) {
@@ -201,12 +207,14 @@
 		    .filter(([name, data]) => data.group.includes("low"))
 		    .map(([name, _]) => name);
 	    } else {
-	        activeInstrumentList = selectInstrumentDropdown.value;
+	        activeInstrumentList = [selectInstrumentDropdown.value];
 	    }
 	    console.log(activeInstrumentList);
+	    // requireNextRound = true;
+	    nextRound();
 	});
 
-	let activeInstrumentList = [];
+
 	
 // ||------------------------------- Global Script Variables ----------------------------------||
 
@@ -290,8 +298,7 @@
     // ......Randomizing and Round Functions......
 
     	function randomInstrument() {
-	    const keys = Object.keys(instruments);
-	    const name = keys[Math.floor(Math.random() * keys.length)];
+	    const name = activeInstrumentList[Math.floor(Math.random() * activeInstrumentList.length)];
 	    const instrument = instruments[name];
 	    return { instrument, name };
 	}
@@ -383,9 +390,8 @@
 		let pitches = [];
 		let name = "";
 		let instrument = null;
-		const keys = Object.keys(instruments);
 		while (!pitches.includes(primary.pitch)) {
-		    name = keys[Math.floor(Math.random() * keys.length)];
+		    name = activeInstrumentList[Math.floor(Math.random() * activeInstrumentList.length)];
 		    instrument = instruments[name];
 		    pitches = instrument.pitches;
 		    secondary.name = name;
