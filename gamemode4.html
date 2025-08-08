@@ -93,13 +93,13 @@
     
     <div class="ui-container center vert-center">
 
-	<!-- Welcome Screen UI -->
+<!-- ||------------------------Welcome Screen UI--------------------------|| -->
 	<br>
 	<div id="welcomeScreen" class="vert-center">
 	    <button id="gameStart" class="">Start Game</button>
 	</div>
 
-	<!-- Game Controls UI -->
+<!-- ||------------------------Game Controls UI---------------------------|| -->
 	<br>
 	<div id="gameControls" class="game-controls hidden">
 	    <div class="game-instructions">
@@ -129,7 +129,9 @@
 	    <div class="text-display">
 		<span id="textContent">Feedback</span>
 	    </div>
+	    <br>
 	    <div class="score-area">
+		<div>Gamemode: <span id="gamemodeSpan"></span></div>
 		<label>Score: </label><span id="score">0</span>
 	    </div>
 	    <div class="timer-area">
@@ -139,7 +141,7 @@
 	    </div>
 	</div>
 
-	<!-- Menu Screen UI -->
+<!-- ||-----------------------Menu Screen UI----------------------------|| -->
 	<br>
 	<div id="menuScreen">
 	    <div>
@@ -150,9 +152,9 @@
 	    </div>
 	    <div>
 		<span>Game Mode</span>
-		<button>Free Play</button>
-		<button>Timer</button>
-		<button>Challenge</button>
+		<button id="freeplayButton">Free Play</button>
+		<button id="timermodeButton">Timer</button>
+		<button id="challengeButton">Challenge</button>
 	    </div>
 	    <div>
 		<span>Intervals</span>
@@ -174,13 +176,15 @@
 	    </div>
 	</div>
 
-	<!-- Results Screen UI -->
+<!-- ||----------------------------Results Screen UI--------------------------|| -->
 	<br>
     </div>
 
     <script>
 
 // ||---------------------------------- Menu Screen UI --------------------------------||
+
+// --- Select Instrument ---
 
 	const selectInstrumentDropdown = document.getElementById("selectInstrumentDropdown");
 	const instrumentKeys = Object.keys(instruments);
@@ -226,6 +230,8 @@
 	    nextRound();
 	});
 
+// --- Select Difficulty ---
+
 	const easyButton = document.getElementById("easyButton");
 	const mediumButton = document.getElementById("mediumButton");
 	const hardButton = document.getElementById("hardButton");
@@ -246,6 +252,55 @@
 	    //requireNextRound = true;
 	    nextRound();
 	});
+
+// --- Select Game Mode ---
+
+	let gamemode = "freeplay";
+
+	const freeplayButton = document.getElementById("freeplayButton");
+	const timermodeButton = document.getElementById("timermodeButton");
+	const challengeButton = document.getElementById("challengeButton");
+
+	freeplayButton.addEventListener('click', () => {
+	    if (gamemode !== "freeplay") {
+	    	gamemode = "freeplay";
+		clearInterval(timerInterval);
+		timerInterval = null;
+		timer = 0;
+		updateTimerDisplay();
+		startTimer();
+	    	//requireNextRound = true;
+	    	nextRound();
+	    }
+	});
+	timermodeButton.addEventListener('click', () => {
+	    if (gamemode !== "timermode") {
+		gamemode = "timermode";
+		clearInterval(timerInterval);
+		timerInterval = null;
+		timer = 180;
+		updateTimerDisplay();
+		startTimer();
+		//requireNextRound = true;
+		nextRound();
+	    }
+	});
+	challengeButton.addEventListener('click', () => {
+	    if (gamemode !== "challenge") {
+		gamemode = "challenge";
+		//requireNextRound = true;
+		nextRound();
+	    }
+	});
+// TODO: implement functionality that allows the user to change the gamemode. Currently, it is designed to run in Free Play mode, where a timer counts up from 0:00 and the score is recorded. The Pause button should maybe read "Finish" to bring the user to the results screen. Results screen can include information like "hardest difficulty reached", "percentage of correct answers", and maybe at some point use cookies to remember "high score" between sessions.
+
+// When the user selects "Timer", it would be nice to have a few different options like a 1 minute, a 3 minute, and a 5 minute option. Now, there needs to be a different function that makes the timer decrease from 1:00 to 0:00, and a function that brings the user to the results screen when time is up, displays the results, and maybe resets the game.
+
+// I'm also thinking about using the START UI screen in this way: using cookies, the last settings are remembered (difficulty, gamemode, intervals, instrument selection) so that pushing "start" will automatically start the game with the last selected settings. Then, on the GAME CONTROLS UI, the "options" button will allow the user to pause and possibly reset their game with different settings. Just pushing "options" and not changing anything will effectively pause the game, allowing the user to push "back" without resetting anything, but changing any of the settings will trigger a "requireRestart" bool and "back" will reset the game with the new settings.
+
+// When the user selects "Challenge", the timer will change to "Lives: 5" and each time a question is answered incorrectly, Lives will decrease. When "lives" gets to 0, just like "timer", the user will be brought to the results screen.
+
+// Maybe to keep the format of <time> <button> <button>, I could use "Reset" in place of "Finish" for the last two game modes. 
 	
 // ||------------------------------- Global Script Variables ----------------------------------||
 
@@ -356,15 +411,13 @@
 	}
 
 	async function nextRound() {
-	    console.log(`Difficulty = ${difficulty}`);
-	    console.log(`increaseDifficulty = ${increaseDifficulty}`);
+	    console.log(`difficulty = ${difficulty}, increase = ${increaseDifficulty}`);
 	    round = "inorout";
 	    instructions.innerHTML = "Question: Are the notes in tune or out of tune?";
-	    console.log(`Round = ${round}`);
 	    buttonOne.innerHTML = "In Tune";
 	    buttonTwo.innerHTML = "Out of Tune";
 	    inTune = Math.random() < 0.5 ? true : false;
-	    console.log(`inTune = ${inTune}`);
+	    console.log(`Round = ${round}, inTune = ${inTune}`);
 	    if (inTune) {
 		detuneAmount = 0;
 	    } else {
@@ -372,7 +425,7 @@
 		detuneAmount = (sign * difficulty);
 	    }
 	    primary = generateRandom();
-	    console.log(`Primary: ${primary.name} ${primary.pitch}`)
+	    // console.log(`Primary: ${primary.name} ${primary.pitch}`)
 	    primaryInstrumentName.innerHTML = displayName(primary.name);
 	    primaryInstrumentNote.innerHTML = primary.pitch;
 	    primaryBuffer = await loadAudioBuffer(primary.filePath);
@@ -436,9 +489,9 @@
 	    secondaryBuffer = await loadAudioBuffer(filePath);
 
 	    playAudioBuffer(primaryBuffer);
-	    console.log(`${primary.filePath}`);
+	    // console.log(`${primary.filePath}`);
 	    playAudioBuffer(secondaryBuffer, detuneAmount);
-	    console.log(`Secondary: ${secondary.name} ${newNote} ${detuneAmount}`);
+	    // console.log(`Secondary: ${secondary.name} ${newNote} ${detuneAmount}`);
 	    playCount++;
 	    const playCheck = playCount;
 	    lightOn(primaryContainer);
@@ -630,10 +683,13 @@
 	function startTimer() {
 	    if (timerInterval) return; // Prevent multiple intervals
 	    timerInterval = setInterval(() => {
-	        if (!isPaused) {
+	        if (!isPaused && gamemode === "freeplay") {
 	            timer++;
 	            updateTimerDisplay();
-	        }
+	        } else if (!isPaused && (gamemode === "timermode")) {
+		    timer--;
+		    updateTimerDisplay();
+		}
 	    }, 1000);
 	}
 

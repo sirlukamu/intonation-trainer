@@ -1,3 +1,29 @@
+### setTimeout() and setInterval() ###
+
+Using setTimeout() calls a function ONCE after a delay, while setInterval() calls a function REPEATEDLY at fixed intervals.
+
+### Strict and Loose equality in JavaScript ###
+
+Using Loose equality (== or !=) compares values AFTER trying to convert them to the same type. In other words, int 5 == str "5" would return true, as would if (0 == false). Only use loose equality when there is a specific reason to do so.
+
+Using Strict equality (=== or !==) compares values exactly as they are, so 5 === "5" would return false, because one of them is an integer and the other is a string. Use strict equality by default, unless there is a reason to use loose equality.
+
+### .padStart() Method and manipulating strings ###
+
+The .padStart() method is used on strings to make sure they are at least a specified number of characters long. I am using this in the timer script to make sure the clock displays two digits when it is below 10. The parameters for .padStart() are (desired_length, 'padding_character'). For example, "2".padStart(2, '0') would return "02".
+
+.padStart() has a similar method called .padEnd() that adds chars to the end of a string, like "Hi".padEnd(5, '!') would return "Hi!!!".
+
+To shorten strings, there is a method called .slice(start, end) which includes the `start` and stops before the `end`. "Hi".slice(0, 1) would return "H". A negative index means "from the nth-to-last character". Using .slice(-1) means "from the last character" and because there is no End parameter, go until the end of the string.
+
+More examples:
+"abcdef".slice(2, 4);   // "cd"
+"abcdef".slice(4);      // "ef"
+"abcdef".slice(-3);     // "def"
+"abcdef".slice(-4, -1); // "cde"
+"abcdef".slice(3, 2);   // "", because start is greater than end
+
+
 ### CSS - Containers and Relative/Absolute ###
 
 .waveform-container {
