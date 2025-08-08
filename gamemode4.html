@@ -94,11 +94,13 @@
     <div class="ui-container center vert-center">
 
 	<!-- Welcome Screen UI -->
+	<br>
 	<div id="welcomeScreen" class="vert-center">
 	    <button id="gameStart" class="">Start Game</button>
 	</div>
 
 	<!-- Game Controls UI -->
+	<br>
 	<div id="gameControls" class="game-controls hidden">
 	    <div class="game-instructions">
 		<div id="instructions">Question: Are the notes in tune or out of tune?</div>
@@ -138,21 +140,25 @@
 	</div>
 
 	<!-- Menu Screen UI -->
+	<br>
 	<div id="menuScreen">
 	    <div>
 		<span>Difficulty</span>
-		<button>Easy</button>
-		<button>Medium</button>
-		<button>Hard</button>
-		<button>Auto</button>
+		<button id="easyButton">Easy</button>
+		<button id="mediumButton">Medium</button>
+		<button id="hardButton">Hard</button>
 	    </div>
 	    <div>
 		<span>Game Mode</span>
-		<button>Free-Play</button>
-		<button>Countdown</button>
+		<button>Free Play</button>
+		<button>Timer</button>
 		<button>Challenge</button>
-		<button>Experiment</button>
 	    </div>
+	    <div>
+		<span>Intervals</span>
+		<button>Unison</button>
+		<button>Octave</button>
+		<button>Auto</button>
 	    <div>
 		<span>Select Instrument:</span>
 		<select id="selectInstrumentDropdown">
@@ -167,9 +173,14 @@
 		<button>Back</button>
 	    </div>
 	</div>
+
+	<!-- Results Screen UI -->
+	<br>
     </div>
 
     <script>
+
+// ||---------------------------------- Menu Screen UI --------------------------------||
 
 	const selectInstrumentDropdown = document.getElementById("selectInstrumentDropdown");
 	const instrumentKeys = Object.keys(instruments);
@@ -185,6 +196,7 @@
 		selectInstrumentDropdown.appendChild(newOption);
 	    }
 	}
+
 	document.addEventListener("DOMContentLoaded", populateInstrumentDropdown);
 	selectInstrumentDropdown.addEventListener('input', () => {
 	    console.log(`${selectInstrumentDropdown.value}`);
@@ -214,7 +226,26 @@
 	    nextRound();
 	});
 
-
+	const easyButton = document.getElementById("easyButton");
+	const mediumButton = document.getElementById("mediumButton");
+	const hardButton = document.getElementById("hardButton");
+	let difficulty = 35;
+	
+	easyButton.addEventListener('click', () => {
+	    difficulty = 35;
+	    //requireNextRound = true;
+	    nextRound();
+	});
+	mediumButton.addEventListener('click', () => {
+	    difficulty = 25;
+	    //requireNextRound = true;
+	    nextRound();
+	});
+	hardButton.addEventListener('click', () => {
+	    difficulty = 15;
+	    //requireNextRound = true;
+	    nextRound();
+	});
 	
 // ||------------------------------- Global Script Variables ----------------------------------||
 
@@ -239,7 +270,6 @@
 	let secondaryBuffer = null;
 	let inTune = true;
 	let detuneAmount = 0;
-	let difficulty = 35;
 	let sign = 1;
 	let roundDuration = 2.5;
 	let followUpDuration = 2;
@@ -248,6 +278,7 @@
 	let activeSources = [];
 	let intervalType = null;
 	let playCount = 0;
+	let increaseDifficulty = 0;
 
 
 // ||---------------------------------------Function Definitions-------------------------------||
@@ -325,6 +356,8 @@
 	}
 
 	async function nextRound() {
+	    console.log(`Difficulty = ${difficulty}`);
+	    console.log(`increaseDifficulty = ${increaseDifficulty}`);
 	    round = "inorout";
 	    instructions.innerHTML = "Question: Are the notes in tune or out of tune?";
 	    console.log(`Round = ${round}`);
@@ -452,7 +485,7 @@
 	    secondaryContainer.style.backgroundColor = "#333";
 	}
 
-// ||-----------------------------Interactive Program-----------------------------------||
+// ||-----------------------------Game Controls UI-----------------------------------||
 
 	// Starts the game when user clicks start
 	gameStart.addEventListener('click', () => {
@@ -462,24 +495,36 @@
 	    startTimer();
 	    nextRound();
 	});
+	let wasIncorrect = false;
 	buttonOne.addEventListener('click', () => {
 	// Button One says "In Tune" or "Sharp"
 	    stopAllAudio();
 	    if ((round === "inorout") && (inTune)) {
+		// Correct!
 		textContent.innerHTML = `Correct! They are in tune.`;
 		score++;
+		increaseDifficulty++;
+		if (increaseDifficulty === 2) {
+		    difficulty = difficulty * .8;
+		    increaseDifficulty = 0;
+		}
 		scoreText.innerHTML = `${score}`;
 		nextRound();
 	    }
 	    else if ((round === "inorout") && (!inTune)) {
 		// Incorrect!
+		wasIncorrect = true;
 		textContent.innerHTML = `Incorrect. They are out of tune.`;
+		increaseDifficulty = 0;
 		followUp();
 	    }
 	    else if ((round === "sharporflat") && (sign === 1)) {
 		textContent.innerHTML = `Correct! Sharp by ${detuneAmount.toFixed(1)} cents`;
 		score++;
-		difficulty = difficulty * .8;
+		if (!wasIncorrect) {
+		    difficulty = difficulty * .8;
+		}
+		wasIncorrect = false;
 		scoreText.innerHTML = `${score}`;
 		nextRound();
 	    }
@@ -487,6 +532,7 @@
 		// Incorrect!
 		textContent.innerHTML = `Incorrect. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
 		difficulty = difficulty / .8;
+		wasIncorrect = false; // Reset for next round.
 		nextRound();
 	    }
 	});
@@ -497,6 +543,7 @@
 	    if ((round === "inorout") && (inTune)) {
 		// Incorrect!
 		textContent.innerHTML = `Incorrect. They are in tune.`;
+		increaseDifficulty = 0;
 		nextRound();
 	    }
 	    else if ((round === "inorout") && (!inTune)) {
@@ -510,6 +557,7 @@
 		// Incorrect!
 		textContent.innerHTML = `Incorrect. Sharp by ${detuneAmount.toFixed(1)} cents`;
 		difficulty = difficulty / .8;
+		wasIncorrect = false; // Reset for next round.
 		nextRound();
 	    }
 	    else if ((round === "sharporflat") && (sign === -1)) {
@@ -517,7 +565,10 @@
 		textContent.innerHTML = `Correct. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
 		score++;
 		scoreText.innerHTML = `${score}`;
-		difficulty = difficulty * .8;
+		if (!wasIncorrect) {
+		    difficulty = difficulty * .8;
+		}
+		wasIncorrect = false;
 		nextRound();
 	    }
 	});
@@ -559,6 +610,7 @@
 	});
 	
     </script>
+
     <script>
 	// Call startTimer();
 
