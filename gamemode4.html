@@ -7,7 +7,12 @@
 
     <!-- Working document CSS instead of linking separate .css stylesheet -->
     <style>
-	
+	.hidden {
+	    display: none;
+	}
+	.overlay-text {
+	    color: white;
+	}
     </style>
     <!-- Working document datacopy.js instead of linking separate .js file -->
     <script>
@@ -143,7 +148,7 @@
 
 <!-- ||-----------------------Menu Screen UI----------------------------|| -->
 	<br>
-	<div id="menuScreen">
+	<div id="menuScreen" class="hidden">
 	    <div>
 		<span>Difficulty</span>
 		<button id="easyButton">Easy</button>
@@ -172,12 +177,16 @@
 		</select>
 	    </div>
 	    <div>
-		<button>Back</button>
+		<button id="backButton">Back</button>
 	    </div>
 	</div>
 
 <!-- ||----------------------------Results Screen UI--------------------------|| -->
 	<br>
+	<div id="resultsScreen" class="hidden")
+	    <p>Display results here.</p>
+	    <button>Restart</button>
+	</div>
     </div>
 
     <script>
@@ -226,8 +235,7 @@
 	        activeInstrumentList = [selectInstrumentDropdown.value];
 	    }
 	    console.log(activeInstrumentList);
-	    // requireNextRound = true;
-	    nextRound();
+	    requireNextRound = true;
 	});
 
 // --- Select Difficulty ---
@@ -239,18 +247,15 @@
 	
 	easyButton.addEventListener('click', () => {
 	    difficulty = 35;
-	    //requireNextRound = true;
-	    nextRound();
+	    requireNextRound = true;
 	});
 	mediumButton.addEventListener('click', () => {
 	    difficulty = 25;
-	    //requireNextRound = true;
-	    nextRound();
+	    requireNextRound = true;
 	});
 	hardButton.addEventListener('click', () => {
 	    difficulty = 15;
-	    //requireNextRound = true;
-	    nextRound();
+	    requireNextRound = true;
 	});
 
 // --- Select Game Mode ---
@@ -269,8 +274,7 @@
 		timer = 0;
 		updateTimerDisplay();
 		startTimer();
-	    	//requireNextRound = true;
-	    	nextRound();
+	    	requireNextRound = true;
 	    }
 	});
 	timermodeButton.addEventListener('click', () => {
@@ -281,15 +285,13 @@
 		timer = 180;
 		updateTimerDisplay();
 		startTimer();
-		//requireNextRound = true;
-		nextRound();
+		requireNextRound = true;
 	    }
 	});
 	challengeButton.addEventListener('click', () => {
 	    if (gamemode !== "challenge") {
 		gamemode = "challenge";
-		//requireNextRound = true;
-		nextRound();
+		requireNextRound = true;
 	    }
 	});
 // TODO: implement functionality that allows the user to change the gamemode. Currently, it is designed to run in Free Play mode, where a timer counts up from 0:00 and the score is recorded. The Pause button should maybe read "Finish" to bring the user to the results screen. Results screen can include information like "hardest difficulty reached", "percentage of correct answers", and maybe at some point use cookies to remember "high score" between sessions.
@@ -334,6 +336,7 @@
 	let intervalType = null;
 	let playCount = 0;
 	let increaseDifficulty = 0;
+
 
 
 // ||---------------------------------------Function Definitions-------------------------------||
@@ -540,15 +543,52 @@
 
 // ||-----------------------------Game Controls UI-----------------------------------||
 
+	const optionsButton = document.getElementById("optionsButton");
+	const backButton = document.getElementById("backButton");
+
+	function showScreen(screenId) {
+	    const screens = ["welcomeScreen", "gameControls", "menuScreen", "resultsScreen"]
+	    screens.forEach((id) => {
+		document.getElementById(id).classList.add("hidden");
+	    });
+	    document.getElementById(screenId).classList.remove("hidden");
+	}
+
+	optionsButton.addEventListener('click', () => {
+	    stopAllAudio();
+	    showScreen("menuScreen");
+	    isPaused = true;
+	    
+	});
+	backButton.addEventListener('click', () => {
+	    showScreen("gameControls");
+	    isPaused = false;
+	    if (requireNextRound) {
+		if (gamemode === "freeplay") {
+		    timer = 0;
+		    updateTimerDisplay();
+		} else if (gamemode === "timermode") {
+		    timer = 180;
+		    updateTimerDisplay();
+		}
+		score = 0;
+		updateScore();
+		requireNextRound = false;
+		nextRound();
+	    }
+	});
+
 	// Starts the game when user clicks start
 	gameStart.addEventListener('click', () => {
-	    gameStart.classList.add("hidden");
+	    showScreen("gameControls")
 	    gameStarted = true;
-	    gameControls.classList.remove("hidden");
 	    startTimer();
 	    nextRound();
 	});
 	let wasIncorrect = false;
+	function updateScore() {
+	    scoreText.innerHTML = `${score}`;
+	}
 	buttonOne.addEventListener('click', () => {
 	// Button One says "In Tune" or "Sharp"
 	    stopAllAudio();
@@ -561,7 +601,7 @@
 		    difficulty = difficulty * .8;
 		    increaseDifficulty = 0;
 		}
-		scoreText.innerHTML = `${score}`;
+		updateScore();
 		nextRound();
 	    }
 	    else if ((round === "inorout") && (!inTune)) {
@@ -578,7 +618,7 @@
 		    difficulty = difficulty * .8;
 		}
 		wasIncorrect = false;
-		scoreText.innerHTML = `${score}`;
+		updateScore();
 		nextRound();
 	    }
 	    else if ((round === "sharporflat") && (sign === -1)) {
@@ -603,7 +643,7 @@
 		// Correct!
 		textContent.innerHTML = `Correct! They are out of tune.`;
 		score++;
-		scoreText.innerHTML = `${score}`;
+		updateScore();
 		followUp();
 	    }
 	    else if ((round === "sharporflat") && (sign === 1)) {
@@ -617,7 +657,7 @@
 		// Correct!
 		textContent.innerHTML = `Correct. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
 		score++;
-		scoreText.innerHTML = `${score}`;
+		updateScore();
 		if (!wasIncorrect) {
 		    difficulty = difficulty * .8;
 		}
