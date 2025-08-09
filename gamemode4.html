@@ -99,13 +99,13 @@
     <div class="ui-container center vert-center">
 
 <!-- ||------------------------Welcome Screen UI--------------------------|| -->
-	<br>
+
 	<div id="welcomeScreen" class="vert-center">
 	    <button id="gameStart" class="">Start Game</button>
 	</div>
 
 <!-- ||------------------------Game Controls UI---------------------------|| -->
-	<br>
+
 	<div id="gameControls" class="game-controls hidden">
 	    <div class="game-instructions">
 		<div id="instructions">Question: Are the notes in tune or out of tune?</div>
@@ -136,18 +136,21 @@
 	    </div>
 	    <br>
 	    <div class="score-area">
-		<div>Gamemode: <span id="gamemodeSpan"></span></div>
+		<div>Gamemode: <span id="gamemodeText"></span></div>
 		<label>Score: </label><span id="score">0</span>
 	    </div>
 	    <div class="timer-area">
 		<span id="timerDisplay" class="">00:00</span>
-		<button id="pauseButton" class="">Pause</button>
+		<span id="livesText" class="hidden">Lives:
+		    <span id="livesLeft">5</span> 
+	        </span>
+		<button id="pauseButton" class="">Finish</button>
 		<button id="optionsButton">Options</button>
 	    </div>
 	</div>
 
 <!-- ||-----------------------Menu Screen UI----------------------------|| -->
-	<br>
+
 	<div id="menuScreen" class="hidden">
 	    <div>
 		<span>Difficulty</span>
@@ -166,6 +169,7 @@
 		<button>Unison</button>
 		<button>Octave</button>
 		<button>Auto</button>
+	    </div>
 	    <div>
 		<span>Select Instrument:</span>
 		<select id="selectInstrumentDropdown">
@@ -182,8 +186,8 @@
 	</div>
 
 <!-- ||----------------------------Results Screen UI--------------------------|| -->
-	<br>
-	<div id="resultsScreen" class="hidden")
+
+	<div id="resultsScreen" class="hidden">
 	    <p>Display results here.</p>
 	    <button>Restart</button>
 	</div>
@@ -236,6 +240,7 @@
 	    }
 	    console.log(activeInstrumentList);
 	    requireNextRound = true;
+	    backButton.innerHTML = "Restart";
 	});
 
 // --- Select Difficulty ---
@@ -248,52 +253,81 @@
 	easyButton.addEventListener('click', () => {
 	    difficulty = 35;
 	    requireNextRound = true;
+	    backButton.innerHTML = "New Round";
 	});
 	mediumButton.addEventListener('click', () => {
 	    difficulty = 25;
 	    requireNextRound = true;
+	    backButton.innerHTML = "New Round";
 	});
 	hardButton.addEventListener('click', () => {
 	    difficulty = 15;
 	    requireNextRound = true;
+	    backButton.innerHTML = "New Round";
 	});
 
 // --- Select Game Mode ---
 
 	let gamemode = "freeplay";
-
+	
+	const gamemodeText = document.getElementById("gamemodeText");
+	gamemodeText.innerHTML = "Free Play";
 	const freeplayButton = document.getElementById("freeplayButton");
 	const timermodeButton = document.getElementById("timermodeButton");
 	const challengeButton = document.getElementById("challengeButton");
 
+	function showDisplay(displayId) {
+	    const displays = ["timerDisplay", "livesText"];
+	    displays.forEach((id) => {
+		document.getElementById(id).classList.add("hidden");
+	    });
+	    document.getElementById(displayId).classList.remove("hidden");
+	}
 	freeplayButton.addEventListener('click', () => {
 	    if (gamemode !== "freeplay") {
 	    	gamemode = "freeplay";
-		clearInterval(timerInterval);
-		timerInterval = null;
+		gamemodeText.innerHTML = "Free Play";
+		pauseButton.innerHTML = "Finish";
+		showDisplay("timerDisplay");
 		timer = 0;
 		updateTimerDisplay();
+		clearInterval(timerInterval);
+		timerInterval = null;
 		startTimer();
 	    	requireNextRound = true;
+	    	backButton.innerHTML = "New Round";
 	    }
 	});
 	timermodeButton.addEventListener('click', () => {
 	    if (gamemode !== "timermode") {
 		gamemode = "timermode";
+		gamemodeText.innerHTML = "Timer";
+		pauseButton.innerHTML = "Restart";
+		showDisplay("timerDisplay");
+		timer = 5; // 5 for testing, will be timerSelect or 180
+		updateTimerDisplay();
 		clearInterval(timerInterval);
 		timerInterval = null;
-		timer = 180;
-		updateTimerDisplay();
 		startTimer();
+		console.log(`gamemode=${gamemode}, timer=${timer}`);
 		requireNextRound = true;
+	    	backButton.innerHTML = "New Round";
 	    }
 	});
+	let timerSelect = 180;
 	challengeButton.addEventListener('click', () => {
 	    if (gamemode !== "challenge") {
 		gamemode = "challenge";
+		gamemodeText.innerHTML = "Challenge";
+		pauseButton.innerHTML = "Restart";
+		showDisplay("livesText");
+		clearInterval(timerInterval);
+		timerInterval = null;
 		requireNextRound = true;
+	    	backButton.innerHTML = "New Round";
 	    }
 	});
+	let lives = 1; // 1 for testing, change to 5 later
 // TODO: implement functionality that allows the user to change the gamemode. Currently, it is designed to run in Free Play mode, where a timer counts up from 0:00 and the score is recorded. The Pause button should maybe read "Finish" to bring the user to the results screen. Results screen can include information like "hardest difficulty reached", "percentage of correct answers", and maybe at some point use cookies to remember "high score" between sessions.
 
 // When the user selects "Timer", it would be nice to have a few different options like a 1 minute, a 3 minute, and a 5 minute option. Now, there needs to be a different function that makes the timer decrease from 1:00 to 0:00, and a function that brings the user to the results screen when time is up, displays the results, and maybe resets the game.
@@ -507,6 +541,7 @@
 	}
 
 	function followUp () {
+	    if (stopFollowUp) return;
 	    round = "sharporflat";
 	    instructions.innerHTML = "Question: Is the second note sharp or flat?";
 	    console.log(`Round = ${round} Sign = ${sign}`);
@@ -519,7 +554,8 @@
   	    lightsOff();
 	    lightOn(primaryContainer);
 	    setTimeout(() => {
-		if(playCount === playCheck) {
+		if (stopFollowUp) return;
+		if (playCount === playCheck) {
 		    lightsOff();
 		    lightOn(secondaryContainer);
 		    playAudioBuffer(secondaryBuffer, detuneAmount, panRight, followUpDuration);
@@ -541,6 +577,7 @@
 	    secondaryContainer.style.backgroundColor = "#333";
 	}
 
+
 // ||-----------------------------Game Controls UI-----------------------------------||
 
 	const optionsButton = document.getElementById("optionsButton");
@@ -556,6 +593,7 @@
 
 	optionsButton.addEventListener('click', () => {
 	    stopAllAudio();
+	    stopFollowUp = true;
 	    showScreen("menuScreen");
 	    isPaused = true;
 	    
@@ -563,18 +601,14 @@
 	backButton.addEventListener('click', () => {
 	    showScreen("gameControls");
 	    isPaused = false;
+	    stopFollowUp = false;
 	    if (requireNextRound) {
-		if (gamemode === "freeplay") {
-		    timer = 0;
-		    updateTimerDisplay();
-		} else if (gamemode === "timermode") {
-		    timer = 180;
-		    updateTimerDisplay();
-		}
 		score = 0;
 		updateScore();
 		requireNextRound = false;
 		nextRound();
+		backButton.innerHTML = "Back";
+
 	    }
 	});
 
@@ -582,6 +616,8 @@
 	gameStart.addEventListener('click', () => {
 	    showScreen("gameControls")
 	    gameStarted = true;
+	    isPaused = false;
+	    stopFollowUp = false;
 	    startTimer();
 	    nextRound();
 	});
@@ -589,6 +625,14 @@
 	function updateScore() {
 	    scoreText.innerHTML = `${score}`;
 	}
+
+	if ((gamemode === "challenge") && (lives === 1)) {
+	    stopAllAudio();
+	    showScreen("resultsScreen");
+	}
+
+	let stopFollowUp = false;
+
 	buttonOne.addEventListener('click', () => {
 	// Button One says "In Tune" or "Sharp"
 	    stopAllAudio();
@@ -608,10 +652,20 @@
 		// Incorrect!
 		wasIncorrect = true;
 		textContent.innerHTML = `Incorrect. They are out of tune.`;
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
 		increaseDifficulty = 0;
 		followUp();
 	    }
 	    else if ((round === "sharporflat") && (sign === 1)) {
+		// Correct!
 		textContent.innerHTML = `Correct! Sharp by ${detuneAmount.toFixed(1)} cents`;
 		score++;
 		if (!wasIncorrect) {
@@ -626,6 +680,15 @@
 		textContent.innerHTML = `Incorrect. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
 		difficulty = difficulty / .8;
 		wasIncorrect = false; // Reset for next round.
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
 		nextRound();
 	    }
 	});
@@ -637,6 +700,15 @@
 		// Incorrect!
 		textContent.innerHTML = `Incorrect. They are in tune.`;
 		increaseDifficulty = 0;
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
 		nextRound();
 	    }
 	    else if ((round === "inorout") && (!inTune)) {
@@ -651,6 +723,15 @@
 		textContent.innerHTML = `Incorrect. Sharp by ${detuneAmount.toFixed(1)} cents`;
 		difficulty = difficulty / .8;
 		wasIncorrect = false; // Reset for next round.
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
 		nextRound();
 	    }
 	    else if ((round === "sharporflat") && (sign === -1)) {
@@ -687,6 +768,7 @@
 	    	const playCheck = playCount;
   	    	lightsOff();
 	    	lightOn(primaryContainer);
+		if (stopFollowUp) return;
 	    	setTimeout(() => {
 		    if(playCount === playCheck) {
 		    	lightsOff();
@@ -709,6 +791,31 @@
 
 	const timerDisplay = document.getElementById("timerDisplay");
 	const pauseButton = document.getElementById("pauseButton");
+	const livesLeft = document.getElementById("livesLeft");
+	pauseButton.addEventListener("click", () => {
+	    if (gamemode === "freeplay") {
+		// Finishes the Free Play game
+		stopAllAudio();
+		showScreen("resultsScreen");
+		isPaused = true;
+		clearInterval(timerInterval);
+		timerInterval = null;
+	    } else if (gamemode === "timermode") {
+		// Restarts Timer Mode game
+		stopAllAudio();
+		score = 0;
+		updateScore();
+		timer = timerSelect;
+		updateTimerDisplay();
+	    } else {
+		// Restarts Challenge Mode game
+		stopAllAudio();
+		score = 0;
+		updateScore();
+		lives = 5;
+		livesLeft.innerHTML = lives;
+	    }
+	});
 
 	let timer = 0;
 	let timerInterval = null;
@@ -729,14 +836,14 @@
 	        } else if (!isPaused && (gamemode === "timermode")) {
 		    timer--;
 		    updateTimerDisplay();
+		    if (timer < 0) {
+			isPaused = true;
+			showScreen("resultsScreen");
+		    }
 		}
 	    }, 1000);
 	}
 
-	pauseButton.addEventListener('click', () => {
-	    isPaused = !isPaused;
-	    pauseButton.textContent = isPaused ? "Resume" : "Pause";
-	});
     </script>
 
 </body>
