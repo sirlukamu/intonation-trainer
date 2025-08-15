@@ -1010,6 +1010,7 @@
 		    updateTimerDisplay();
 		    if (timer < 0) {
 			stopAllAudio();
+			stopFollowUp = true;
 			isPaused = true;
 			updateStats();
 			showScreen("resultsScreen");
