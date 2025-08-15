@@ -299,13 +299,16 @@
 
 	const startOptionsButton = document.getElementById("startOptionsButton");
 	startOptionsButton.addEventListener('click', () => {
+	    if (audioContext.state === 'suspended') audioContext.resume(); // see Notebook
 	    backButton.innerHTML = "New Round";
 	    requireNextRound = true;
 	    showScreen("menuScreen");
 	});
 
+
 	const gameStart = document.getElementById("gameStart");
 	gameStart.addEventListener('click', () => {
+	    if (audioContext.state === 'suspended') audioContext.resume();
 	    showScreen("gameControls")
 	    isPaused = false;
 	    stopFollowUp = false;
