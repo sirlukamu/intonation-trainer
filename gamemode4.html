@@ -102,6 +102,7 @@
 
 	<div id="welcomeScreen" class="vert-center">
 	    <button id="gameStart" class="">Start Game</button>
+	    <button id="startOptionsButton">Options</button>
 	</div>
 
 <!-- ||------------------------Game Controls UI---------------------------|| -->
@@ -142,7 +143,7 @@
 	    <div class="timer-area">
 		<span id="timerDisplay" class="">00:00</span>
 		<span id="livesText" class="hidden">Lives:
-		    <span id="livesLeft">5</span> 
+		    <span id="livesLeft">3</span> 
 	        </span>
 		<button id="pauseButton" class="">Finish</button>
 		<button id="optionsButton">Options</button>
@@ -166,9 +167,9 @@
 	    </div>
 	    <div>
 		<span>Intervals</span>
-		<button>Unison</button>
-		<button>Octave</button>
-		<button>Auto</button>
+		<button id="unisonButton">Unison</button>
+		<button id="octaveButton">Octave</button>
+		<button id="autoInterval">Auto</button>
 	    </div>
 	    <div>
 		<span>Select Instrument:</span>
@@ -188,16 +189,395 @@
 <!-- ||----------------------------Results Screen UI--------------------------|| -->
 
 	<div id="resultsScreen" class="hidden">
-	    <p>Display results here.</p>
-	    <button>Restart</button>
+	    <div>
+		<div><span id="motivationalText">You did a great job!</span></div>
+		<br>
+		<div>Correct Answers: <span id="correctTotalText">0</span></div>
+		<div>In or Out of tune: <span id="correctTunedText">0</span></div>
+		<div>Sharp: <span id="correctSharpText">0</span> Flat: <span id="correctFlatText">0</span></div>
+		<br>
+		<div>Incorrect Answers: <span id="incorrectTotalText">0</span></div>
+		<div>In or Out of tune: <span id="incorrectTunedText">0</span></div>
+		<div>Sharp: <span id="incorrectSharpText">0</span> Flat: <span id="incorrectFlatText">0</span></div>
+		<br>
+		<div>Game Mode: <span id="gamemodeResultsText">Free Play</span></div>
+		<div>Hardest Difficulty: <span id="hardestDifficultyText">35</span> cents</div>
+	    </div>
+	    <br>
+	    <button id="restartButton">Restart</button>
+	    <button id="resultsOptionsButton">Options</button>
 	</div>
     </div>
 
     <script>
 
-// ||---------------------------------- Menu Screen UI --------------------------------||
+// ||-------------------------- Results Screen Functions -------------------------||
 
-// --- Select Instrument ---
+	const resultsOptionsButton = document.getElementById("resultsOptionsButton");
+	resultsOptionsButton.addEventListener('click', () => {
+	    backButton.innerHTML = "New Round";
+	    requireNextRound = true;
+	    showScreen("menuScreen");
+	    isPaused = true;
+	});
+
+	const restartButton = document.getElementById("restartButton");
+	restartButton.addEventListener('click', () => {
+	    if (gamemode === "timermode") {
+	        timer = timerAmount;
+	    } else {
+		timer = 0;
+	    }
+	    if (gamemode !== "challenge") {
+	        clearInterval(timerInterval);
+		timerInterval = null;
+		console.log(`timerintervalPre=${timerInterval} ispaused=${isPaused}`);
+		isPaused = false;
+		updateTimerDisplay();
+	        startTimer();
+	    }
+	    console.log(`gamemode=${gamemode} timer=${timer} timerinterval=${timerInterval} ispaused=${isPaused}`)
+	    showScreen(screens[1]);
+	    resetStats();
+	    score = 0;
+	    updateScore();
+	    stopFollowUp = false;
+	    nextRound();
+	});
+	let correctSharp = 0;
+	let correctFlat = 0;
+	let correctTuned = 0;
+	let incorrectSharp = 0; // answered flat when note was sharp
+	let incorrectFlat = 0; // answered sharp when note was flat
+	let incorrectTuned = 0; // answered out of tune when notes were in tune
+	let hardestDifficulty = 35;
+	function resetStats() {
+	    difficulty = rememberDifficulty;
+	    correctSharp = 0;
+	    correctFlat = 0;
+	    correctTuned = 0;
+	    incorrectSharp = 0;
+	    incorrectFlat = 0;
+	    incorrectTuned = 0;
+	}
+	const correctTunedText = document.getElementById("correctTunedText");
+	const correctSharpText = document.getElementById("correctSharpText");
+	const correctFlatText = document.getElementById("correctFlatText");
+	const incorrectTunedText = document.getElementById("incorrectTunedText");
+	const incorrectSharpText = document.getElementById("incorrectSharpText");
+	const incorrectFlatText = document.getElementById("incorrectFlatText");
+	const hardestDifficultyText = document.getElementById("hardestDifficultyText");
+	const correctTotalText = document.getElementById("correctTotalText");
+	const incorrectTotalText = document.getElementById("incorrectTotalText");
+	const gamemodeResultsText = document.getElementById("gamemodeResultsText");
+	const motivationalText = document.getElementById("motivationalText");
+	const motivationalQuotes = ["You're doing great!", "Nice tuning skills!", "Pitch perfect!", "Keep it in tune!", "Sounding awesome!", "Sharp work!", "Right on pitch!", "Stay in tune!", "Your ears rock!", "Tuning mastery!"];
+	let quote = 0;
+	function updateStats() {
+	    motivationalText.innerHTML = motivationalQuotes[quote];
+	    quote = (quote + 1) % motivationalQuotes.length;
+	    correctTotalText.innerHTML = correctTuned + correctSharp + correctFlat;
+	    correctTunedText.innerHTML = correctTuned;
+	    correctSharpText.innerHTML = correctSharp;
+	    correctFlatText.innerHTML = correctFlat;
+	    incorrectTotalText.innerHTML = incorrectTuned + incorrectSharp + incorrectFlat;
+	    incorrectTunedText.innerHTML = incorrectTuned;
+	    incorrectSharpText.innerHTML = incorrectSharp;
+	    incorrectFlatText.innerHTML = incorrectFlat;
+	    hardestDifficultyText.innerHTML = hardestDifficulty.toFixed(1);
+	    if (gamemode === "freeplay") {
+		gamemodeResultsText.innerHTML = "Free Play";
+	    } else if (gamemode === "timermode") {
+		gamemodeResultsText.innerHTML = "Timer";
+	    } else {
+		gamemodeResultsText.innerHTML = "Challenge";
+	    }
+	}
+
+// ||-----------------------------Start Screen UI-----------------------------------||
+
+	const startOptionsButton = document.getElementById("startOptionsButton");
+	startOptionsButton.addEventListener('click', () => {
+	    backButton.innerHTML = "New Round";
+	    requireNextRound = true;
+	    showScreen("menuScreen");
+	});
+
+	const gameStart = document.getElementById("gameStart");
+	gameStart.addEventListener('click', () => {
+	    showScreen("gameControls")
+	    isPaused = false;
+	    stopFollowUp = false;
+	    startTimer();
+	    nextRound();
+	});
+
+// ||-----------------------------Game Controls UI-----------------------------------||
+
+	const screens = ["welcomeScreen", "gameControls", "menuScreen", "resultsScreen"]
+	function showScreen(screenId) {
+	    screens.forEach((id) => {
+		document.getElementById(id).classList.add("hidden");
+	    });
+	    document.getElementById(screenId).classList.remove("hidden");
+	}
+
+	const optionsButton = document.getElementById("optionsButton");
+	optionsButton.addEventListener('click', () => {
+	    stopAllAudio();
+	    stopFollowUp = true;
+	    showScreen("menuScreen");
+	    isPaused = true;    
+	});
+
+	const pauseButton = document.getElementById("pauseButton");
+	pauseButton.addEventListener("click", () => {
+	    if (gamemode === "freeplay") {
+		// Finishes the Free Play game
+		stopAllAudio();
+		stopFollowUp = true;
+		updateStats();
+		showScreen("resultsScreen");
+		isPaused = true;
+		clearInterval(timerInterval);
+		timerInterval = null;
+	    } else if (gamemode === "timermode") {
+		// Restarts Timer Mode game
+		console.log(`pre timer=${timer} timerinterval=${timerInterval} ispaused=${isPaused}`);
+		stopAllAudio();
+		stopFollowUp = true;
+		score = 0;
+		updateScore();
+		resetStats();
+		timer = timerAmount;
+		updateTimerDisplay();
+		clearInterval(timerInterval);
+		timerInterval = null;
+		isPaused = false;
+		startTimer();
+		console.log(`post timer=${timer} timerinterval=${timerInterval} ispaused=${isPaused}`);
+		nextRound();
+	    } else {
+		// Restarts Challenge Mode game
+		stopAllAudio();
+		stopFollowUp = true;
+		score = 0;
+		updateScore();
+		resetStats();
+		lives = 3;
+		livesLeft.innerHTML = lives;
+		nextRound();
+	    }
+	});
+
+	let stopFollowUp = false;
+	const diffChange = .8;
+	let wasIncorrect = false;
+	function updateScore() {
+	    scoreText.innerHTML = `${score}`;
+	}
+
+	const buttonOne = document.getElementById("in-sharp");
+	buttonOne.addEventListener('click', () => {
+	// Button One says "In Tune" or "Sharp"
+	    stopAllAudio();
+	    if ((round === "inorout") && (inTune)) {
+		// Correct!
+		textContent.innerHTML = `Correct! They are in tune.`;
+		score++;
+		correctTuned++;
+		increaseDifficulty++;
+		if (increaseDifficulty === 2) {
+		    difficulty = difficulty * diffChange;
+		    increaseDifficulty = 0;
+		}
+		updateScore();
+		nextRound();
+	    }
+	    else if ((round === "inorout") && (!inTune)) {
+		// Incorrect!
+		wasIncorrect = true;
+		textContent.innerHTML = `Incorrect. They are out of tune.`;
+		incorrectTuned++;
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		    updateStats();
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
+		increaseDifficulty = 0;
+		difficulty = difficulty / diffChange;
+		followUp();
+	    }
+	    else if ((round === "sharporflat") && (sign === 1)) {
+		// Correct!
+		textContent.innerHTML = `Correct! Sharp by ${detuneAmount.toFixed(1)} cents`;
+		score++;
+		correctSharp++;
+		if (!wasIncorrect) {
+		    difficulty = difficulty * diffChange;
+		}
+		wasIncorrect = false;
+		updateScore();
+		nextRound();
+	    }
+	    else if ((round === "sharporflat") && (sign === -1)) {
+		// Incorrect!
+		textContent.innerHTML = `Incorrect. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
+		incorrectFlat++;
+		difficulty = difficulty / diffChange;
+		wasIncorrect = false; // Reset for next round.
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		    updateStats();
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
+		nextRound();
+	    }
+	});
+
+	const buttonTwo = document.getElementById("out-flat");
+	buttonTwo.addEventListener('click', () => {
+	// Button Two says "Out of Tune" or "Flat"
+	    stopAllAudio();
+	    if ((round === "inorout") && (inTune)) {
+		// Incorrect!
+		textContent.innerHTML = `Incorrect. They are in tune.`;
+		incorrectTuned++;
+		increaseDifficulty = 0;
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		    updateStats();
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
+		nextRound();
+	    }
+	    else if ((round === "inorout") && (!inTune)) {
+		// Correct!
+		textContent.innerHTML = `Correct! They are out of tune.`;
+		score++;
+		correctTuned++;
+		updateScore();
+		followUp();
+	    }
+	    else if ((round === "sharporflat") && (sign === 1)) {
+		// Incorrect!
+		textContent.innerHTML = `Incorrect. Sharp by ${detuneAmount.toFixed(1)} cents`;
+		incorrectSharp++;
+		difficulty = difficulty / diffChange;
+		wasIncorrect = false; // Reset for next round.
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		    updateStats();
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
+		nextRound();
+	    }
+	    else if ((round === "sharporflat") && (sign === -1)) {
+		// Correct!
+		textContent.innerHTML = `Correct. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
+		score++;
+		correctFlat++;
+		updateScore();
+		if (!wasIncorrect) {
+		    difficulty = difficulty * diffChange;
+		}
+		wasIncorrect = false;
+		nextRound();
+	    }
+	});
+
+	// Allows user to replay the audio.
+	const repeatButton = document.getElementById("repeat-button");
+	repeatButton.addEventListener('click', () => {
+	    stopAllAudio();
+	    if (round === "inorout") {
+		playAudioBuffer(primaryBuffer);
+	    	playAudioBuffer(secondaryBuffer, detuneAmount);
+	    	playCount++;
+	    	const playCheck = playCount;
+	    	lightOn(primaryContainer);
+	    	lightOn(secondaryContainer);
+	    	setTimeout(() => {
+		    if(playCheck === playCount){
+		    	lightsOff();
+		    }
+	    	}, roundDuration * 1000);
+	    } else {
+	    	playAudioBuffer(primaryBuffer, 0, panLeft, followUpDuration);
+	    	playCount++;
+	    	const playCheck = playCount;
+  	    	lightsOff();
+	    	lightOn(primaryContainer);
+		if (stopFollowUp) return;
+	    	setTimeout(() => {
+		    if(playCount === playCheck) {
+			if (stopFollowUp) return;
+		    	lightsOff();
+		    	lightOn(secondaryContainer);
+		    	playAudioBuffer(secondaryBuffer, detuneAmount, panRight, followUpDuration);
+		    	setTimeout(() => {
+			    if(playCount === playCheck) {
+			    	lightsOff();
+			    }
+		    	}, followUpDuration * 1000);
+		    }	
+	    	}, followUpDuration * 1000);
+	    }
+	});
+	
+	// Call startTimer();
+	const livesLeft = document.getElementById("livesLeft");
+	const timerDisplay = document.getElementById("timerDisplay");
+
+	let timer = 0;
+	let timerInterval = null;
+	let isPaused = false;
+
+// ||---------------------------- Menu Screen Functions --------------------------||
+
+	const backButton = document.getElementById("backButton");
+	backButton.addEventListener('click', () => {
+	    showScreen("gameControls");
+	    isPaused = false;
+	    stopFollowUp = false;
+	    if (requireNextRound) {
+		score = 0;
+		updateScore();
+		requireNextRound = false;
+		nextRound();
+		backButton.innerHTML = "Back";
+	    }
+	});
+
+	// --- Select Instrument ---
 
 	const selectInstrumentDropdown = document.getElementById("selectInstrumentDropdown");
 	const instrumentKeys = Object.keys(instruments);
@@ -240,33 +620,38 @@
 	    }
 	    console.log(activeInstrumentList);
 	    requireNextRound = true;
-	    backButton.innerHTML = "Restart";
+	    backButton.innerHTML = "New Round";
 	});
 
-// --- Select Difficulty ---
+	// --- Select Difficulty ---
 
 	const easyButton = document.getElementById("easyButton");
 	const mediumButton = document.getElementById("mediumButton");
 	const hardButton = document.getElementById("hardButton");
-	let difficulty = 35;
+	const difficulties = [35, 25, 15];
+	let difficulty = difficulties[1];
+	let rememberDifficulty = difficulties[1];
 	
 	easyButton.addEventListener('click', () => {
-	    difficulty = 35;
+	    difficulty = difficulties[0];
+	    rememberDifficulty = difficulties[0];
 	    requireNextRound = true;
 	    backButton.innerHTML = "New Round";
 	});
 	mediumButton.addEventListener('click', () => {
-	    difficulty = 25;
+	    difficulty = difficulties[1];
+	    rememberDifficulty = difficulties[1];
 	    requireNextRound = true;
 	    backButton.innerHTML = "New Round";
 	});
 	hardButton.addEventListener('click', () => {
-	    difficulty = 15;
+	    difficulty = difficulties[2];
+	    rememberDifficulty = difficulties[2];
 	    requireNextRound = true;
 	    backButton.innerHTML = "New Round";
 	});
 
-// --- Select Game Mode ---
+	// --- Select Game Mode ---
 
 	let gamemode = "freeplay";
 	
@@ -304,7 +689,7 @@
 		gamemodeText.innerHTML = "Timer";
 		pauseButton.innerHTML = "Restart";
 		showDisplay("timerDisplay");
-		timer = 5; // 5 for testing, will be timerSelect or 180
+		timer = timerAmount;
 		updateTimerDisplay();
 		clearInterval(timerInterval);
 		timerInterval = null;
@@ -314,10 +699,11 @@
 	    	backButton.innerHTML = "New Round";
 	    }
 	});
-	let timerSelect = 180;
+	let timerAmount = 60; // Used for Timer Gamemode
 	challengeButton.addEventListener('click', () => {
 	    if (gamemode !== "challenge") {
 		gamemode = "challenge";
+		lives = 3;
 		gamemodeText.innerHTML = "Challenge";
 		pauseButton.innerHTML = "Restart";
 		showDisplay("livesText");
@@ -327,25 +713,49 @@
 	    	backButton.innerHTML = "New Round";
 	    }
 	});
-	let lives = 1; // 1 for testing, change to 5 later
-// TODO: implement functionality that allows the user to change the gamemode. Currently, it is designed to run in Free Play mode, where a timer counts up from 0:00 and the score is recorded. The Pause button should maybe read "Finish" to bring the user to the results screen. Results screen can include information like "hardest difficulty reached", "percentage of correct answers", and maybe at some point use cookies to remember "high score" between sessions.
+	let lives = 3; // 3 for testing, change to 5 later?
+// The Pause button should maybe read "Finish" to bring the user to the results screen. Results screen can include information like "hardest difficulty reached", "percentage of correct answers", and maybe at some point use cookies to remember "high score" between sessions.
 
-// When the user selects "Timer", it would be nice to have a few different options like a 1 minute, a 3 minute, and a 5 minute option. Now, there needs to be a different function that makes the timer decrease from 1:00 to 0:00, and a function that brings the user to the results screen when time is up, displays the results, and maybe resets the game.
+// Results screen ideas: positive reinforcement statements! How many missed sharp versus flat, how many missed high versus low. Display settings, hardest difficulty reached, 
+
 
 // I'm also thinking about using the START UI screen in this way: using cookies, the last settings are remembered (difficulty, gamemode, intervals, instrument selection) so that pushing "start" will automatically start the game with the last selected settings. Then, on the GAME CONTROLS UI, the "options" button will allow the user to pause and possibly reset their game with different settings. Just pushing "options" and not changing anything will effectively pause the game, allowing the user to push "back" without resetting anything, but changing any of the settings will trigger a "requireRestart" bool and "back" will reset the game with the new settings.
 
-// When the user selects "Challenge", the timer will change to "Lives: 5" and each time a question is answered incorrectly, Lives will decrease. When "lives" gets to 0, just like "timer", the user will be brought to the results screen.
 
-// Maybe to keep the format of <time> <button> <button>, I could use "Reset" in place of "Finish" for the last two game modes. 
+// ----------- Select Intervals ---------
+	
+	const intervals = ["unison", "octave", "auto"]
+	let interval = intervals[0];
+
+	const unisonButton = document.getElementById("unisonButton");
+	unisonButton.addEventListener('click', () => {
+	    if (interval !== intervals[0]) {
+		requireNextRound = true;
+	    	interval = intervals[0];
+	    }
+	    console.log(`interval = ${interval}`);
+	});
+	const octaveButton = document.getElementById("octaveButton");
+	octaveButton.addEventListener('click', () => {
+	    if (interval !== intervals[1]) {
+		requireNextRound = true;
+	    	interval = intervals[1];
+	    }
+	    console.log(`interval = ${interval}`);
+	});
+	const autoInterval = document.getElementById("autoInterval");
+	autoInterval.addEventListener('click', () => {
+	    if (interval !== intervals[2]) {
+		requireNextRound = true;
+	    	interval = intervals[2];
+	    }
+	    console.log(`interval = ${interval}`);
+	});
 	
 // ||------------------------------- Global Script Variables ----------------------------------||
 
 	const audioContext = new (window.AudioContext);
 	const textContent = document.getElementById("textContent");
-	const gameStart = document.getElementById("gameStart");
-	const buttonOne = document.getElementById("in-sharp");
-	const buttonTwo = document.getElementById("out-flat");
-	const repeatButton = document.getElementById("repeat-button");
 	const gameControls = document.getElementById("gameControls");
 	const scoreText = document.getElementById("score");
 	const primaryContainer = document.getElementById("primaryContainer");
@@ -354,7 +764,6 @@
 
 	let score = 0;
 	let round = "inorout";
-	let gameStarted = false;
 	let primary = null;
 	let secondary = null;
 	let primaryBuffer = null;
@@ -448,6 +857,7 @@
 	}
 
 	async function nextRound() {
+	    stopFollowUp = false;
 	    console.log(`difficulty = ${difficulty}, increase = ${increaseDifficulty}`);
 	    round = "inorout";
 	    instructions.innerHTML = "Question: Are the notes in tune or out of tune?";
@@ -455,6 +865,7 @@
 	    buttonTwo.innerHTML = "Out of Tune";
 	    inTune = Math.random() < 0.5 ? true : false;
 	    console.log(`Round = ${round}, inTune = ${inTune}`);
+	    if (difficulty < hardestDifficulty) hardestDifficulty = difficulty;
 	    if (inTune) {
 		detuneAmount = 0;
 	    } else {
@@ -462,21 +873,25 @@
 		detuneAmount = (sign * difficulty);
 	    }
 	    primary = generateRandom();
-	    // console.log(`Primary: ${primary.name} ${primary.pitch}`)
 	    primaryInstrumentName.innerHTML = displayName(primary.name);
 	    primaryInstrumentNote.innerHTML = primary.pitch;
 	    primaryBuffer = await loadAudioBuffer(primary.filePath);
 	    let newNote = null;
-	    intervalType = Math.random() < 0.5 ? "octave" : "unison";
+	// Insert interval game option logic check here
+	    intervalType = interval;
+	    if (intervalType === intervals[2]) {
+	    	intervalType = Math.random() < 0.5 ? "octave" : "unison";
+	    }
 	    console.log(`intervalType = ${intervalType}`);
 	    if (intervalType === "octave") {
-	    // Suggestion: Write all of this as a function: newNote = findOctave();
+	    // Searches for a new note in Octaves...
 		secondary = generateRandom();
 		let primaryInstrument = instruments[primary.name];
 		let secondaryInstrument = instruments[secondary.name];
 		const parsedNote = parseNote(primary.pitch);
 
 		if (primaryInstrument.octave === secondaryInstrument.octave) {
+		// The instruments are pitched in the same octave...
 		    const direction = Math.random() < .5 ? 1 : -1;
 		    const distances = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
 		    for (let i = 0; i < distances.length; i++) {
@@ -488,6 +903,7 @@
 			}
 		    }
 		} else {
+		// The instruments are pitched in different octaves already...
 		    let normalizedOctave = secondaryInstrument.octave - primaryInstrument.octave;
 		    let testOctave = parsedNote.octave + normalizedOctave;
 		    let candidate = parsedNote.note + testOctave;
@@ -507,7 +923,7 @@
 		    }
 		}
 	    } else {
-	    // Suggestion: Write all of this as a function: newNote = findUnison();
+	    // Searches for a new note in Unison...
 		secondary = generateRandom();
 		newNote = primary.pitch;
 		let pitches = [];
@@ -577,250 +993,6 @@
 	    secondaryContainer.style.backgroundColor = "#333";
 	}
 
-
-// ||-----------------------------Game Controls UI-----------------------------------||
-
-	const optionsButton = document.getElementById("optionsButton");
-	const backButton = document.getElementById("backButton");
-
-	function showScreen(screenId) {
-	    const screens = ["welcomeScreen", "gameControls", "menuScreen", "resultsScreen"]
-	    screens.forEach((id) => {
-		document.getElementById(id).classList.add("hidden");
-	    });
-	    document.getElementById(screenId).classList.remove("hidden");
-	}
-
-	optionsButton.addEventListener('click', () => {
-	    stopAllAudio();
-	    stopFollowUp = true;
-	    showScreen("menuScreen");
-	    isPaused = true;
-	    
-	});
-	backButton.addEventListener('click', () => {
-	    showScreen("gameControls");
-	    isPaused = false;
-	    stopFollowUp = false;
-	    if (requireNextRound) {
-		score = 0;
-		updateScore();
-		requireNextRound = false;
-		nextRound();
-		backButton.innerHTML = "Back";
-
-	    }
-	});
-
-	// Starts the game when user clicks start
-	gameStart.addEventListener('click', () => {
-	    showScreen("gameControls")
-	    gameStarted = true;
-	    isPaused = false;
-	    stopFollowUp = false;
-	    startTimer();
-	    nextRound();
-	});
-	let wasIncorrect = false;
-	function updateScore() {
-	    scoreText.innerHTML = `${score}`;
-	}
-
-	if ((gamemode === "challenge") && (lives === 1)) {
-	    stopAllAudio();
-	    showScreen("resultsScreen");
-	}
-
-	let stopFollowUp = false;
-
-	buttonOne.addEventListener('click', () => {
-	// Button One says "In Tune" or "Sharp"
-	    stopAllAudio();
-	    if ((round === "inorout") && (inTune)) {
-		// Correct!
-		textContent.innerHTML = `Correct! They are in tune.`;
-		score++;
-		increaseDifficulty++;
-		if (increaseDifficulty === 2) {
-		    difficulty = difficulty * .8;
-		    increaseDifficulty = 0;
-		}
-		updateScore();
-		nextRound();
-	    }
-	    else if ((round === "inorout") && (!inTune)) {
-		// Incorrect!
-		wasIncorrect = true;
-		textContent.innerHTML = `Incorrect. They are out of tune.`;
-		if ((gamemode === "challenge") && (lives === 1)) {
-	    	    stopAllAudio();
-		    stopFollowUp = true;
-		    setTimeout(() => showScreen("resultsScreen"), 2000);
-	    	    return;
-		} else if ((gamemode === "challenge") && (lives > 1)) {
-		    lives--;
-		    livesLeft.innerHTML = lives;
-		}
-		increaseDifficulty = 0;
-		followUp();
-	    }
-	    else if ((round === "sharporflat") && (sign === 1)) {
-		// Correct!
-		textContent.innerHTML = `Correct! Sharp by ${detuneAmount.toFixed(1)} cents`;
-		score++;
-		if (!wasIncorrect) {
-		    difficulty = difficulty * .8;
-		}
-		wasIncorrect = false;
-		updateScore();
-		nextRound();
-	    }
-	    else if ((round === "sharporflat") && (sign === -1)) {
-		// Incorrect!
-		textContent.innerHTML = `Incorrect. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
-		difficulty = difficulty / .8;
-		wasIncorrect = false; // Reset for next round.
-		if ((gamemode === "challenge") && (lives === 1)) {
-	    	    stopAllAudio();
-		    stopFollowUp = true;
-		    setTimeout(() => showScreen("resultsScreen"), 2000);
-	    	    return;
-		} else if ((gamemode === "challenge") && (lives > 1)) {
-		    lives--;
-		    livesLeft.innerHTML = lives;
-		}
-		nextRound();
-	    }
-	});
-
-	buttonTwo.addEventListener('click', () => {
-	// Button Two says "Out of Tune" or "Flat"
-	    stopAllAudio();
-	    if ((round === "inorout") && (inTune)) {
-		// Incorrect!
-		textContent.innerHTML = `Incorrect. They are in tune.`;
-		increaseDifficulty = 0;
-		if ((gamemode === "challenge") && (lives === 1)) {
-	    	    stopAllAudio();
-		    stopFollowUp = true;
-		    setTimeout(() => showScreen("resultsScreen"), 2000);
-	    	    return;
-		} else if ((gamemode === "challenge") && (lives > 1)) {
-		    lives--;
-		    livesLeft.innerHTML = lives;
-		}
-		nextRound();
-	    }
-	    else if ((round === "inorout") && (!inTune)) {
-		// Correct!
-		textContent.innerHTML = `Correct! They are out of tune.`;
-		score++;
-		updateScore();
-		followUp();
-	    }
-	    else if ((round === "sharporflat") && (sign === 1)) {
-		// Incorrect!
-		textContent.innerHTML = `Incorrect. Sharp by ${detuneAmount.toFixed(1)} cents`;
-		difficulty = difficulty / .8;
-		wasIncorrect = false; // Reset for next round.
-		if ((gamemode === "challenge") && (lives === 1)) {
-	    	    stopAllAudio();
-		    stopFollowUp = true;
-		    setTimeout(() => showScreen("resultsScreen"), 2000);
-	    	    return;
-		} else if ((gamemode === "challenge") && (lives > 1)) {
-		    lives--;
-		    livesLeft.innerHTML = lives;
-		}
-		nextRound();
-	    }
-	    else if ((round === "sharporflat") && (sign === -1)) {
-		// Correct!
-		textContent.innerHTML = `Correct. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
-		score++;
-		updateScore();
-		if (!wasIncorrect) {
-		    difficulty = difficulty * .8;
-		}
-		wasIncorrect = false;
-		nextRound();
-	    }
-	});
-
-	// Allows user to replay the audio.
-	repeatButton.addEventListener('click', () => {
-	    stopAllAudio();
-	    if (round === "inorout") {
-		playAudioBuffer(primaryBuffer);
-	    	playAudioBuffer(secondaryBuffer, detuneAmount);
-	    	playCount++;
-	    	const playCheck = playCount;
-	    	lightOn(primaryContainer);
-	    	lightOn(secondaryContainer);
-	    	setTimeout(() => {
-		    if(playCheck === playCount){
-		    	lightsOff();
-		    }
-	    	}, roundDuration * 1000);
-	    } else {
-	    	playAudioBuffer(primaryBuffer, 0, panLeft, followUpDuration);
-	    	playCount++;
-	    	const playCheck = playCount;
-  	    	lightsOff();
-	    	lightOn(primaryContainer);
-		if (stopFollowUp) return;
-	    	setTimeout(() => {
-		    if(playCount === playCheck) {
-		    	lightsOff();
-		    	lightOn(secondaryContainer);
-		    	playAudioBuffer(secondaryBuffer, detuneAmount, panRight, followUpDuration);
-		    	setTimeout(() => {
-			    if(playCount === playCheck) {
-			    	lightsOff();
-			    }
-		    	}, followUpDuration * 1000);
-		    }	
-	    	}, followUpDuration * 1000);
-	    }
-	});
-	
-    </script>
-
-    <script>
-	// Call startTimer();
-
-	const timerDisplay = document.getElementById("timerDisplay");
-	const pauseButton = document.getElementById("pauseButton");
-	const livesLeft = document.getElementById("livesLeft");
-	pauseButton.addEventListener("click", () => {
-	    if (gamemode === "freeplay") {
-		// Finishes the Free Play game
-		stopAllAudio();
-		showScreen("resultsScreen");
-		isPaused = true;
-		clearInterval(timerInterval);
-		timerInterval = null;
-	    } else if (gamemode === "timermode") {
-		// Restarts Timer Mode game
-		stopAllAudio();
-		score = 0;
-		updateScore();
-		timer = timerSelect;
-		updateTimerDisplay();
-	    } else {
-		// Restarts Challenge Mode game
-		stopAllAudio();
-		score = 0;
-		updateScore();
-		lives = 5;
-		livesLeft.innerHTML = lives;
-	    }
-	});
-
-	let timer = 0;
-	let timerInterval = null;
-	let isPaused = false;
-
 	function updateTimerDisplay() {
 	    const minutes = String(Math.floor(timer / 60)).padStart(2, '0');
 	    const seconds = String(timer % 60).padStart(2, '0');
@@ -837,7 +1009,9 @@
 		    timer--;
 		    updateTimerDisplay();
 		    if (timer < 0) {
+			stopAllAudio();
 			isPaused = true;
+			updateStats();
 			showScreen("resultsScreen");
 		    }
 		}
