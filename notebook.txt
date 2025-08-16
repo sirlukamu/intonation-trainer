@@ -1,3 +1,18 @@
+### CSS styling notes ###
+
+My HTML document uses this structure:
+<body>
+  <h1></h1>
+  <div ui-container>
+    <div screens>
+    </div>
+  </div>
+</body>
+
+So <body> has two sibling elements: <h1> and <div ui-container>. 
+
+display: flex; flex-direction: column; justify-content: center; only affects the children elements, not the element itself.
+
 ### audioContext.resume() ###
 
 My program had an error where other people couldn't hear anything at all. The problem turned out to be that modern browsers have a default setting where if a new (window.AudioContext) is created BEFORE the user clicks anywhere on the page, the browser automatically changes the audioContext.state to "suspended", but it won't automatically .resume() the sound. Because my audioContext is a global variable and gets used by multiple functions, calling it via an event listener function would make it a local variable and difficult to use.
