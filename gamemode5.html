@@ -19,10 +19,13 @@
 	body {
 	    font-family: "Lucidia Console", monospace;
 	    height: 100vh;
-  	    background: #00afff;
+  	    background: #1b262b;
 	    overflow: hidden;
 	    margin: 0;
 	    padding: 0;
+	}
+	h1 {
+	    color: #eee;
 	}
 	button {
 	    padding: 16px;
@@ -49,7 +52,7 @@
 	    border-radius: 10px;
 	    width: 330px;
 	    height: 592px;
-	    background: white;
+	    background: lightblue;
 	}
 	.startbuttons {
 	    width: 90%;
@@ -141,7 +144,7 @@
 	}
 	select {
 	    font-family: "Lucidia Console", monospace;
-	    font-size: 20px;
+	    font-size: 16px;
 	    padding: 5px;
 	    border: solid black 1px;
 	    border-radius: 5px;
@@ -202,6 +205,24 @@
 	}
 	.topscore {
 	    border-bottom: solid;
+	}
+	.difficultyButtons {
+	    background: #aaa
+	}
+	#mediumButton {
+	    background: #5f5
+	}
+	.gamemodeButtons {
+	    background: #aaa
+	}
+	#freeplayButton {
+	    background: #5f5
+	}
+	.intervalButtons {
+	    background: #aaa
+	}
+	#autoInterval {
+	    background: #5f5
 	}
 	
     </style>
@@ -275,32 +296,30 @@
 		<button id="optionsButton" class="gamebutton">Options</button>
 	    </div>
 	</div>
-
-<!-- ||-----------------------Menu Screen UI----------------------------|| -->
-
-	<div id="menuScreen" class="hidden menu-screen">
-	    <div class="optiongroup">
-		<span>Difficulty</span>
-		<div class="buttonscontainer">
-		<button id="easyButton">Easy</button>
-		<button id="mediumButton">Medium</button>
-		<button id="hardButton">Hard</button>
-	 	</div>
+<!-- ||-----------------------Menu Screen UI----------------------------|| --> 
+	<div id="menuScreen" class="hidden menu-screen"> 
+	    <div class="optiongroup"> 
+	    <span>Difficulty</span> 
+	        <div class="buttonscontainer"> 
+		<button class="difficultyButtons" id="easyButton">Easy</button> 
+		<button class="difficultyButtons" id="mediumButton">Medium</button> 
+		<button class="difficultyButtons" id="hardButton">Hard</button> 
+	        </div> 
 	    </div>
 	    <div class="optiongroup">
 		<span>Game Mode</span>
 		<div class="buttonscontainer">
-		<button id="freeplayButton" class="smallertext">Freeplay</button>
-		<button id="timermodeButton" class="smallertext">Timer</button>
-		<button id="challengeButton" class="smallertext">Challenge</button>
+		<button id="freeplayButton" class="gamemodeButtons smallertext">Freeplay</button>
+		<button id="timermodeButton" class="gamemodeButtons smallertext">Timer</button>
+		<button id="challengeButton" class="gamemodeButtons smallertext">Challenge</button>
 		</div>
 	    </div>
 	    <div class="optiongroup">
 		<span>Intervals</span>
 		<div class="buttonscontainer">
-		<button id="unisonButton">Unison</button>
-		<button id="octaveButton">Octave</button>
-		<button id="autoInterval">Auto</button>
+		<button class="intervalButtons" id="unisonButton">Unison</button>
+		<button class="intervalButtons" id="octaveButton">Octave</button>
+		<button class="intervalButtons" id="autoInterval">Auto</button>
 		</div>
 	    </div>
 	    <div class="optiongroup">
@@ -772,20 +791,35 @@
 	const difficulties = [35, 25, 15];
 	let difficulty = difficulties[1];
 	let rememberDifficulty = difficulties[1];
-	
+
+	const difficultyButtons = document.querySelectorAll(".difficultyButtons");
+	const gamemodeButtons = document.querySelectorAll(".gamemodeButtons");
+	const intervalButtons = document.querySelectorAll(".intervalButtons");
+
+	function radioButton(button, group) {
+	    group.forEach((object) => {
+		object.style.backgroundColor = "#aaa";
+		
+	    });
+	    button.style.backgroundColor = "#5f5";
+	}
+
 	easyButton.addEventListener('click', () => {
+	    radioButton(easyButton, difficultyButtons);
 	    difficulty = difficulties[0];
 	    rememberDifficulty = difficulties[0];
 	    requireNextRound = true;
 	    backButton.innerHTML = "New Round";
 	});
 	mediumButton.addEventListener('click', () => {
+	    radioButton(mediumButton, difficultyButtons);
 	    difficulty = difficulties[1];
 	    rememberDifficulty = difficulties[1];
 	    requireNextRound = true;
 	    backButton.innerHTML = "New Round";
 	});
 	hardButton.addEventListener('click', () => {
+	    radioButton(hardButton, difficultyButtons);
 	    difficulty = difficulties[2];
 	    rememberDifficulty = difficulties[2];
 	    requireNextRound = true;
@@ -811,6 +845,7 @@
 	}
 	freeplayButton.addEventListener('click', () => {
 	    if (gamemode !== "freeplay") {
+		radioButton(freeplayButton, gamemodeButtons);
 	    	gamemode = "freeplay";
 		gamemodeText.innerHTML = "Free Play";
 		pauseButton.innerHTML = "Finish";
@@ -826,6 +861,7 @@
 	});
 	timermodeButton.addEventListener('click', () => {
 	    if (gamemode !== "timermode") {
+		radioButton(timermodeButton, gamemodeButtons);
 		gamemode = "timermode";
 		gamemodeText.innerHTML = "Timer";
 		pauseButton.innerHTML = "Restart";
@@ -843,6 +879,7 @@
 	let timerAmount = 60; // Used for Timer Gamemode
 	challengeButton.addEventListener('click', () => {
 	    if (gamemode !== "challenge") {
+		radioButton(challengeButton, gamemodeButtons);
 		gamemode = "challenge";
 		lives = 3;
 		gamemodeText.innerHTML = "Challenge";
@@ -855,22 +892,18 @@
 	    }
 	});
 	let lives = 3; // 3 for testing, change to 5 later?
-// The Pause button should maybe read "Finish" to bring the user to the results screen. Results screen can include information like "hardest difficulty reached", "percentage of correct answers", and maybe at some point use cookies to remember "high score" between sessions.
-
-// Results screen ideas: positive reinforcement statements! How many missed sharp versus flat, how many missed high versus low. Display settings, hardest difficulty reached, 
-
-
-// I'm also thinking about using the START UI screen in this way: using cookies, the last settings are remembered (difficulty, gamemode, intervals, instrument selection) so that pushing "start" will automatically start the game with the last selected settings. Then, on the GAME CONTROLS UI, the "options" button will allow the user to pause and possibly reset their game with different settings. Just pushing "options" and not changing anything will effectively pause the game, allowing the user to push "back" without resetting anything, but changing any of the settings will trigger a "requireRestart" bool and "back" will reset the game with the new settings.
 
 
 // ----------- Select Intervals ---------
 	
 	const intervals = ["unison", "octave", "auto"]
-	let interval = intervals[0];
+	let interval = intervals[2];
 
 	const unisonButton = document.getElementById("unisonButton");
 	unisonButton.addEventListener('click', () => {
 	    if (interval !== intervals[0]) {
+	    	backButton.innerHTML = "New Round";
+		radioButton(unisonButton, intervalButtons);
 		requireNextRound = true;
 	    	interval = intervals[0];
 	    }
@@ -879,6 +912,8 @@
 	const octaveButton = document.getElementById("octaveButton");
 	octaveButton.addEventListener('click', () => {
 	    if (interval !== intervals[1]) {
+	    	backButton.innerHTML = "New Round";
+		radioButton(octaveButton, intervalButtons);
 		requireNextRound = true;
 	    	interval = intervals[1];
 	    }
@@ -887,6 +922,8 @@
 	const autoInterval = document.getElementById("autoInterval");
 	autoInterval.addEventListener('click', () => {
 	    if (interval !== intervals[2]) {
+	    	backButton.innerHTML = "New Round";
+		radioButton(autoInterval, intervalButtons);
 		requireNextRound = true;
 	    	interval = intervals[2];
 	    }
