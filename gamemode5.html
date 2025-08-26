@@ -215,7 +215,7 @@
 	.gamemodeButtons {
 	    background: #aaa
 	}
-	#freeplayButton {
+	#timermodeButton {
 	    background: #5f5
 	}
 	.intervalButtons {
@@ -425,7 +425,7 @@
 		</div>
 	    </div>
 	    <div class="bottombuttons">
-		<button id="pauseButton" class="gamebutton">Finish</button>
+		<button id="pauseButton" class="gamebutton">Restart</button>
 		<button id="optionsButton" class="gamebutton">Options</button>
 	    </div>
 	</div>
@@ -601,6 +601,7 @@
 	    showScreen("gameControls")
 	    isPaused = false;
 	    stopFollowUp = false;
+	    updateTimerDisplay();
 	    startTimer();
 	    nextRound();
 	});
@@ -850,7 +851,7 @@
 	const livesLeft = document.getElementById("livesLeft");
 	const timerDisplay = document.getElementById("timerDisplay");
 
-	let timer = 0;
+	let timer = 60;
 	let timerInterval = null;
 	let isPaused = false;
 
@@ -862,11 +863,16 @@
 	    isPaused = false;
 	    stopFollowUp = false;
 	    if (requireNextRound) {
+		if (gamemode === "timermode") {
+		    timer = timerAmount;
+		    updateTimerDisplay();
+		}
 		score = 0;
 		updateScore();
 		requireNextRound = false;
 		nextRound();
 		backButton.innerHTML = "Back";
+		console.log(`gamemode = ${gamemode}`);
 	    }
 	});
 
@@ -961,10 +967,10 @@
 
 	// --- Select Game Mode ---
 
-	let gamemode = "freeplay";
+	let gamemode = "timermode";
 	
 	const gamemodeText = document.getElementById("gamemodeText");
-	gamemodeText.innerHTML = "Free Play";
+	gamemodeText.innerHTML = "Timer";
 	const freeplayButton = document.getElementById("freeplayButton");
 	const timermodeButton = document.getElementById("timermodeButton");
 	const challengeButton = document.getElementById("challengeButton");
@@ -1022,6 +1028,7 @@
 		timerInterval = null;
 		requireNextRound = true;
 	    	backButton.innerHTML = "New Round";
+		console.log(`gamemode = ${gamemode}`);
 	    }
 	});
 	let lives = 3; // 3 for testing, change to 5 later?
@@ -1319,7 +1326,7 @@
 	        } else if (!isPaused && (gamemode === "timermode")) {
 		    timer--;
 		    updateTimerDisplay();
-		    if (timer < 0) {
+		    if (timer <= 0) {
 			stopAllAudio();
 			stopFollowUp = true;
 			isPaused = true;
