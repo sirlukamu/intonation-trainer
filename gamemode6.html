@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html>
+<!-- TODO: Buttons flash red or green to indicate correct answers -->
+<!-- TODO: Keep track of wrong answers to display on results screen, replay button -->
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gamemode v.6</title>
+
+    <style>
+	/* ||--------------------- Working CSS Document --------------------|| */
+	/* Color Palette:
+	<palette>
+  	<color name="Forest green" hex="009900" r="0" g="153" b="0" />
+  	<color name="Platinum" hex="daddd8" r="218" g="221" b="216" />
+  	<color name="Raisin black" hex="242325" r="36" g="35" b="37" />
+  	<color name="True Blue" hex="3066be" r="48" g="102" b="190" />
+  	<color name="Slate gray" hex="627c85" r="98" g="124" b="133" />
+	</palette>
+	*/
+	body {
+	    font-family: "Lucidia Console", monospace;
+	    height: 100vh;
+  	    background: #1b262b;
+	    overflow: hidden;
+	    margin: 0;
+	    padding: 0;
+	}
+	h1 {
+	    color: #eee;
+	}
+	button {
+	    background: #f0f0f0;
+	    padding: 16px;
+	    font-size: 18px;
+	    font-family: "Lucidia Console", monospace;
+	    border-radius: 10px;
+
+
+	}
+	.centertext {
+	    text-align: center;
+	}
+	.flex-center {
+	    
+	}
+	.vert-center {
+	    
+	}
+	.ui-container {
+
+	    margin: auto;
+	    transform: translateY(0%);
+	    border: 2px solid black;
+	    border-radius: 10px;
+	    width: 330px;
+	    height: 592px;
+	    background: lightblue;
+	}
+	.startbuttons {
+	    width: 90%;
+	    height: 90%;
+	    display: flex;
+	    flex-direction: column;
+	    flex-wrap: wrap;
+	    justify-content: center;
+	    transform: translateY(20%);
+	    align-items: center;
+	    margin: auto;
+	}
+	.startbutton {
+	    margin: 50px 0;
+	}
+	.hidden {
+	    display: none;
+	}
+	.overlay-text {
+	    color: white;
+	}
+	.game-instructions {
+	    margin: 30px 25px 20px;
+	    font-size: 20px;
+	    text-align: center;
+	}
+	.waveform-wrapper {
+	    display: flex;
+	    align-items: center;
+	    background: #555;
+	    width: 90%;
+	    border-radius: 10px;
+	    padding: 8px 5px;
+	    margin: 20px auto;
+	}
+	.waveform-container {
+	    text-align: center;
+	    width: 45%;
+	    border: 2px solid black;
+	    border-radius: 10px;
+	    margin: auto;
+	}
+	.twobuttons {
+	    width: 100%;
+	    margin: 30px auto 20px;
+	    display: flex;
+	    justify-content: center;
+	}
+	.gamebutton {
+	    width: 45%;
+	    font-size: 18px;
+	    padding: 18px 10px;
+	    margin: 0 5px;
+	}
+	.onebutton {
+	    display: flex;
+	    justify-content: center;
+	    margin: 20px 0;
+	}
+	.text-display {
+	    text-align: center;
+	    margin: 20px 0 40px;
+	}
+	.gamemode-label{
+	    text-align: center;
+	    margin: 30px 0 0;
+	}
+	.score-area{
+	    display: flex;
+	    justify-content: center;
+	    text-align: center;
+	    margin: 10px auto 24px;
+	}
+	.score-display {
+	    padding: 10px;
+	    font-size: 24px;
+	}
+	.bottombuttons {
+	    display: flex;
+	    justify-content: center;
+	}
+	.menu-screen {
+	    font-size: 24px;
+	    text-align: center;
+	    margin: 20px auto;
+	}
+	option {
+	    font-size: 14px;
+	}
+	select {
+	    font-family: "Lucidia Console", monospace;
+	    font-size: 16px;
+	    padding: 5px;
+	    border: solid black 1px;
+	    border-radius: 5px;
+	    margin-top: 10px;
+	}
+	.optiongroup {
+	    margin: 15px auto;
+	}
+	.smallertext {
+	    font-size: 16px;
+	    padding: 16px 12px;
+	}
+	.buttonscontainer {
+	    margin: 10px auto;
+	    padding-bottom: 20px;
+	    border-bottom: solid;
+	}
+	#backButton {
+	    width: 70%;
+	    background: #66ff66;
+	}
+	.results-container{
+	    text-align: center;
+	    font-size: 18px;
+	}
+	.motivational-text{
+	    text-align: center;
+	    font-size: 20px;
+	    margin: 30px auto;
+	}
+	.correct-answers {
+	    margin: 25px auto 40px;
+	    display: flex;
+	    flex-direction: column;
+	    gap: 8px;
+	}
+	.incorrect-answers {
+	    margin: 25px auto 40px;
+	    display: flex;
+	    flex-direction: column;
+	    gap: 8px;
+	}
+	.game-stats {
+	    margin-bottom: 51px;
+	    display: flex;
+	    flex-direction: column;
+	    gap: 8px;
+	}
+	img {
+	    display: block;
+	    margin: 20px auto;
+	}
+	.score {
+	    border: solid black 2px;
+	    margin-right: 15px;
+	    padding: 0 3px;
+	    margin-top: 10px;
+	}
+	.topscore {
+	    border-bottom: solid;
+	}
+	.difficultyButtons {
+	    background: #aaa
+	}
+	#mediumButton {
+	    background: #5f5
+	}
+	.gamemodeButtons {
+	    background: #aaa
+	}
+	#timermodeButton {
+	    background: #5f5
+	}
+	.intervalButtons {
+	    background: #aaa
+	}
+	#autoInterval {
+	    background: #5f5
+	}
+	
+    </style>
+
+    <script>
+	const instruments = {
+	    "piccolo": {
+    		octave: 2,
+    		group: "woodwind",
+    		pitches: [
+      		    "D5", "Eb5", "E5", "F5", "Gb5", "G5", "Ab5", "A5", "Bb5", "B5", 
+      		    "C6", "Db6", "D6", "Eb6", "E6", "F6", "Gb6", "G6", "Ab6", "A6", "Bb6", "B6", 
+      		    "C7", "Db7", "D7", "Eb7", "E7", "F7"
+		]
+  	    },
+
+  	    "flute": {
+    		octave: 1,
+    		group: "woodwind",
+    		pitches: ["C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4", "B4", 
+  		    "C5", "Db5", "D5", "Eb5", "E5", "F5", "Gb5", "G5", "Ab5", "A5", "Bb5", "B5", 
+  		    "C6", "Db6", "D6", "Eb6", "E6", "F6", "Gb6", "G6", "Ab6", "A6", "Bb6", "B6", 
+  		    "C7"
+		]
+ 	    },
+  	    "oboe": {
+    		octave: 1,
+    		group: "woodwind",
+    		pitches: [
+      		    "Bb3", "B3", 
+      		    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4", "B4", 
+      		    "C5", "Db5", "D5", "Eb5", "E5", "F5", "Gb5", "G5", "Ab5", "A5", "Bb5", "B5", 
+      		    "C6", "Db6", "D6"
+    		]
+  	    },
+  	    "bassoon": {
+    		octave: -1,
+   	 	group: "woodwind",
+    		pitches: [
+      		    "Bb1", "B1",
+      		    "C2", "Db2", "D2", "Eb2", "E2", "F2", "Gb2", "G2", "Ab2", "A2", "Bb2", "B2",
+      		    "C3", "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+      		    "C4", "Db4", "D4", "Eb4", "E4", "F4"
+     		]
+  	    },
+  	    "clarinet": {
+    		octave: 0,
+    		group: "woodwind",
+    		pitches: [
+      		    "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+		    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4", "B4", 
+     		    "C5", "Db5", "D5", "Eb5", "E5", "F5", "Gb5", "G5", "Ab5", "A5", "Bb5", "B5", 
+  		    "C6", "Db6", "D6", "Eb6"
+    		]
+  	    },
+  	    "bass-clarinet": {
+    		octave: -1,
+    		group: "woodwind",
+    		pitches: [
+  		    "Db2", "D2", "Eb2", "E2", "F2", "Gb2", "G2", "Ab2", "A2", "Bb2", "B2",
+  		    "C3", "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+  		    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4"
+    		]
+	    },
+	    "alto-sax": {
+    		octave: 0,
+    		group: "woodwind",
+    		pitches: [
+  		    "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+  		    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4", "B4", 
+  		    "C5", "Db5", "D5", "Eb5", "E5", "F5", "Gb5", "G5", "Ab5", "A5", "Bb5"
+    		]
+	    },
+	    "tenor-sax": {
+    		octave: 0,
+    		group: "woodwind",
+    		pitches: [
+  		    "Ab2", "A2", "Bb2", "B2",
+  		    "C3", "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+  		    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4", "B4", 
+  		    "C5", "Db5", "D5", "Eb5"
+    		]
+	    },
+	    "bari-sax": {
+    		octave: -1,
+    		group: "woodwind",
+    		pitches: [
+  		    "Db2", "D2", "Eb2", "E2", "F2", "Gb2", "G2", "Ab2", "A2", "Bb2", "B2",
+  		    "C3", "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+ 	 	    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4"
+    		]
+	    },
+	    "trumpet": {
+    		octave: 0,
+    		group: "brass",
+    		pitches: [
+  		    "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+  		    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4", "B4", 
+  		    "C5", "Db5", "D5", "Eb5", "E5", "F5", "Gb5", "G5", "Ab5", "A5", "Bb5"
+    		]
+	    },
+	    "french-horn": {
+    		octave: 0,
+    		group: "brass",
+    		pitches: [
+  		    "F2", "Gb2", "G2", "Ab2", "A2", "Bb2", "B2",
+  		    "C3", "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+  		    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4", "B4", 
+  		    "C5", "Db5", "D5", "Eb5", "E5", "F5"
+    		]
+	    },
+	    "trombone": {
+    		octave: -1,
+    		group: "brass",
+    		pitches: [
+  		    "E2", "F2", "Gb2", "G2", "Ab2", "A2", "Bb2", "B2",
+  		    "C3", "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+  		    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4"
+    		]
+	    },
+	    "baritone": {
+    		octave: -1,
+    		group: "brass",
+    		pitches: [
+  		    "E2", "F2", "Gb2", "G2", "Ab2", "A2", "Bb2", "B2",
+  		    "C3", "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3", "B3", 
+ 	  	    "C4", "Db4", "D4", "Eb4", "E4", "F4", "Gb4", "G4", "Ab4", "A4", "Bb4"
+    		]
+	    },
+	    "tuba": {
+    		octave: -2,
+    		group: "brass",
+    		pitches: [
+  		    "E1", "F1", "Gb1", "G1", "Ab1", "A1", "Bb1", "B1",
+  		    "C2", "Db2", "D2", "Eb2", "E2", "F2", "Gb2", "G2", "Ab2", "A2", "Bb2", "B2",
+  		    "C3", "Db3", "D3", "Eb3", "E3", "F3", "Gb3", "G3", "Ab3", "A3", "Bb3"
+    		]
+	    },
+	};
+</script>
+
+</head>
+
+<body>
+    <h1 class="centertext">Intonation Trainer</h1>
+    
+    <div class="ui-container">
+
+<!-- ||------------------------Welcome Screen UI--------------------------|| -->
+
+	<div id="welcomeScreen" class="startbuttons">
+	    <div id="welcomeScreenText">
+		<p>How to play:</p>
+		<p>Round One: Are the notes in tune or out of tune?</p>
+		<p>Round Two: Is the second note sharp or flat compared to the first note?</p>
+	    </div>
+	    <div><button id="gameStart" class="center startbutton">Start Game</button></div>
+	    <br>
+	    <div><button id="startOptionsButton" class="center startbutton">Options</button></div>
+	</div>
+
+<!-- ||------------------------Game Controls UI---------------------------|| -->
+
+	<div id="gameControls" class="gamecontrols hidden">
+	    <div class="game-instructions">
+		<div id="instructions">Question: Are the notes in tune or out of tune?</div>
+	    </div>
+	    <div class="waveform-wrapper">
+	    	<div id="primaryContainer" class="waveform-container">
+		    <div class="overlay-text">
+		    	<div id="primaryInstrumentName">Clarinet</div>
+		    	<div id="primaryInstrumentNote">F4</div>
+		    </div>
+	    	</div>
+	        <div id="secondaryContainer" class="waveform-container">
+		    <div class="overlay-text">
+		    	<div id="secondaryInstrumentName">Trumpet</div>
+		    	<div id="secondaryInstrumentNote">F4</div>
+		    </div>
+	    	</div>
+	    </div>
+	    <div class="twobuttons">
+		<button class="gamebutton" id="in-sharp">In Tune</button>
+		<button class="gamebutton" id="out-flat">Out of Tune</button>
+	    </div>
+	    <div class="onebutton">
+		<button id="repeat-button" class="">Replay Audio</button>
+	    </div>
+	    <div class="text-display">
+		<span id="textContent">Feedback appears here.</span>
+	    </div>
+	    <div class="gamemode-label">
+		<div>Gamemode: <span id="gamemodeText"></span>
+		</div>
+	    </div>
+	    <div class="score-area">
+		<div class="score-display">
+		<span id="timerDisplay" class="">00:00</span>
+		</div>
+		<div class="score-display">
+		<span id="livesText" class="hidden">Lives:
+		    <span id="livesLeft">3</span> 
+	        </span>
+		<label>Score: </label><span id="score">0</span>
+		</div>
+	    </div>
+	    <div class="bottombuttons">
+		<button id="pauseButton" class="gamebutton">Restart</button>
+		<button id="optionsButton" class="gamebutton">Options</button>
+	    </div>
+	</div>
+<!-- ||-----------------------Menu Screen UI----------------------------|| --> 
+	<div id="menuScreen" class="hidden menu-screen"> 
+	    <div class="optiongroup"> 
+	    <span>Difficulty</span> 
+	        <div class="buttonscontainer"> 
+		<button class="difficultyButtons" id="easyButton">Easy</button> 
+		<button class="difficultyButtons" id="mediumButton">Medium</button> 
+		<button class="difficultyButtons" id="hardButton">Hard</button> 
+	        </div> 
+	    </div>
+	    <div class="optiongroup">
+		<span>Game Mode</span>
+		<div class="buttonscontainer">
+		<button id="freeplayButton" class="gamemodeButtons smallertext">Freeplay</button>
+		<button id="timermodeButton" class="gamemodeButtons smallertext">Timer</button>
+		<button id="challengeButton" class="gamemodeButtons smallertext">Challenge</button>
+		</div>
+	    </div>
+	    <div class="optiongroup">
+		<span>Intervals</span>
+		<div class="buttonscontainer">
+		<button class="intervalButtons" id="unisonButton">Unison</button>
+		<button class="intervalButtons" id="octaveButton">Octave</button>
+		<button class="intervalButtons" id="autoInterval">Auto</button>
+		</div>
+	    </div>
+	    <div class="optiongroup">
+		<span>Select Instrument:</span>
+		<select id="selectInstrumentDropdown">
+		    <option value="all">All</option>
+		    <option value="brass">Brass Only</option>
+		    <option value="woodwind">Woodwinds</option>
+		    <option value="high">High Voices</option>
+		    <option value="low">Low Voices</option>
+		</select>
+	    </div>
+	    <div>
+		<button id="backButton">Back</button>
+	    </div>
+	</div>
+
+<!-- ||----------------------------Results Screen UI--------------------------|| -->
+
+	<div id="resultsScreen" class="hidden">
+	    <div class="results-container">
+		<div class="motivational-text"><span id="motivationalText">You did a great job!</span></div>
+		<img src="images/musicsmiley.png">
+		<div class="correct-answers">
+		<div>Correct Answers: <span id="correctTotalText" class="score">0</span></div>
+		<div>In / Out of tune: <span id="correctTunedText" class="score">0</span></div>
+		<div>Sharp: <span id="correctSharpText" class="score">0</span> Flat: <span id="correctFlatText" class="score">0</span></div>
+		</div>
+		<div class="incorrect-answers">
+		<div>Incorrect Answers: <span id="incorrectTotalText" class="score">0</span></div>
+		<div>In / Out of tune: <span id="incorrectTunedText" class="score">0</span></div>
+		<div>Sharp: <span id="incorrectSharpText" class="score">0</span> Flat: <span id="incorrectFlatText" class="score">0</span></div>
+		</div>
+		<div class="game-stats">
+		<div>Game Mode: <span id="gamemodeResultsText">Free Play</span></div>
+		<div>Hardest Difficulty: <span id="hardestDifficultyText" class="topscore">35</span> cents</div>
+		</div>
+	    </div>
+	    <div class="bottombuttons">
+	    <button id="restartButton" class="gamebutton">Restart</button>
+	    <button id="resultsOptionsButton" class="gamebutton">Options</button>
+	    </div>
+	</div>
+    </div>
+
+    <script>
+
+// ||-------------------------- Results Screen Functions -------------------------||
+
+	const resultsOptionsButton = document.getElementById("resultsOptionsButton");
+	resultsOptionsButton.addEventListener('click', () => {
+	    backButton.innerHTML = "New Round";
+	    requireNextRound = true;
+	    showScreen("menuScreen");
+	    isPaused = true;
+	});
+
+	const restartButton = document.getElementById("restartButton");
+	restartButton.addEventListener('click', () => {
+	    if (gamemode === "timermode") {
+	        timer = timerAmount;
+	    } else {
+		timer = 0;
+	    }
+	    if (gamemode !== "challenge") {
+	        clearInterval(timerInterval);
+		timerInterval = null;
+		console.log(`timerintervalPre=${timerInterval} ispaused=${isPaused}`);
+		isPaused = false;
+		updateTimerDisplay();
+	        startTimer();
+	    }
+	    console.log(`gamemode=${gamemode} timer=${timer} timerinterval=${timerInterval} ispaused=${isPaused}`)
+	    showScreen(screens[1]);
+	    resetStats();
+	    score = 0;
+	    updateScore();
+	    stopFollowUp = false;
+	    nextRound();
+	});
+	let correctSharp = 0;
+	let correctFlat = 0;
+	let correctTuned = 0;
+	let incorrectSharp = 0; // answered flat when note was sharp
+	let incorrectFlat = 0; // answered sharp when note was flat
+	let incorrectTuned = 0; // answered out of tune when notes were in tune
+	let hardestDifficulty = 35;
+	function resetStats() {
+	    difficulty = rememberDifficulty;
+	    hardestDifficulty = difficulty;
+	    correctSharp = 0;
+	    correctFlat = 0;
+	    correctTuned = 0;
+	    incorrectSharp = 0;
+	    incorrectFlat = 0;
+	    incorrectTuned = 0;
+	}
+	const correctTunedText = document.getElementById("correctTunedText");
+	const correctSharpText = document.getElementById("correctSharpText");
+	const correctFlatText = document.getElementById("correctFlatText");
+	const incorrectTunedText = document.getElementById("incorrectTunedText");
+	const incorrectSharpText = document.getElementById("incorrectSharpText");
+	const incorrectFlatText = document.getElementById("incorrectFlatText");
+	const hardestDifficultyText = document.getElementById("hardestDifficultyText");
+	const correctTotalText = document.getElementById("correctTotalText");
+	const incorrectTotalText = document.getElementById("incorrectTotalText");
+	const gamemodeResultsText = document.getElementById("gamemodeResultsText");
+	const motivationalText = document.getElementById("motivationalText");
+	const motivationalQuotes = ["You're doing great!", "Nice tuning skills!", "Pitch perfect!", "Keep it in tune!", "Sounding awesome!", "Sharp work!", "Right on pitch!", "Stay in tune!", "Your ears rock!", "Tuning mastery!"];
+	let quote = 0;
+	function updateStats() {
+	    motivationalText.innerHTML = motivationalQuotes[quote];
+	    quote = (quote + 1) % motivationalQuotes.length;
+	    correctTotalText.innerHTML = correctTuned + correctSharp + correctFlat;
+	    correctTunedText.innerHTML = correctTuned;
+	    correctSharpText.innerHTML = correctSharp;
+	    correctFlatText.innerHTML = correctFlat;
+	    incorrectTotalText.innerHTML = incorrectTuned + incorrectSharp + incorrectFlat;
+	    incorrectTunedText.innerHTML = incorrectTuned;
+	    incorrectSharpText.innerHTML = incorrectSharp;
+	    incorrectFlatText.innerHTML = incorrectFlat;
+	    hardestDifficultyText.innerHTML = hardestDifficulty.toFixed(1);
+	    if (gamemode === "freeplay") {
+		gamemodeResultsText.innerHTML = "Free Play";
+	    } else if (gamemode === "timermode") {
+		gamemodeResultsText.innerHTML = "Timer";
+	    } else {
+		gamemodeResultsText.innerHTML = "Challenge";
+	    }
+	}
+
+// ||-----------------------------Start Screen UI-----------------------------------||
+
+	const startOptionsButton = document.getElementById("startOptionsButton");
+	startOptionsButton.addEventListener('click', () => {
+	    if (audioContext.state === 'suspended') audioContext.resume(); // see Notebook
+	    backButton.innerHTML = "New Round";
+	    requireNextRound = true;
+	    showScreen("menuScreen");
+	});
+
+
+	const gameStart = document.getElementById("gameStart");
+	gameStart.addEventListener('click', () => {
+	    if (audioContext.state === 'suspended') audioContext.resume();
+	    showScreen("gameControls")
+	    isPaused = false;
+	    stopFollowUp = false;
+	    updateTimerDisplay();
+	    startTimer();
+	    nextRound();
+	});
+
+// ||-----------------------------Game Controls UI-----------------------------------||
+
+	const screens = ["welcomeScreen", "gameControls", "menuScreen", "resultsScreen"]
+	function showScreen(screenId) {
+	    screens.forEach((id) => {
+		document.getElementById(id).classList.add("hidden");
+	    });
+	    document.getElementById(screenId).classList.remove("hidden");
+	}
+
+
+	let stopFollowUp = false;
+	const diffChange = .8;
+	let wasIncorrect = false;
+	function updateScore() {
+	    scoreText.innerHTML = `${score}`;
+	}
+	let buttonPlayCount = 0;
+
+	function flash(color, button) {
+	    button.style.backgroundColor = color;
+	    buttonPlayCount++;
+	    const buttonPlayCheck = buttonPlayCount;
+	    setTimeout(() => {
+		if (buttonPlayCount === buttonPlayCheck) {
+		    button.style.backgroundColor = "#f0f0f0"
+		}
+	    }, roundDelay);
+	}
+
+	function resetButtonColors() {
+		buttonOne.style.backgroundColor = "#f0f0f0";
+		buttonTwo.style.backgroundColor = "#f0f0f0";
+	}
+	const green = "#4e4";
+	const red = "#f33";
+	const roundDelay = 1500;
+	const buttonOne = document.getElementById("in-sharp");
+	buttonOne.addEventListener('click', () => {
+	// Button One says "In Tune" or "Sharp"
+	    stopAllAudio();
+	    if ((round === "inorout") && (inTune)) {
+		// Correct!
+		flash(green, buttonOne);
+		textContent.innerHTML = `Correct! They are in tune.`;
+		score++;
+		correctTuned++;
+		increaseDifficulty++;
+		if (increaseDifficulty === 2) {
+		    difficulty = difficulty * diffChange;
+		    increaseDifficulty = 0;
+		}
+		updateScore();
+		setTimeout(nextRound, roundDelay);
+		
+	    }
+	    else if ((round === "inorout") && (!inTune)) {
+		// Incorrect!
+		flash(red, buttonOne);
+		wasIncorrect = true;
+		textContent.innerHTML = `Incorrect. They are out of tune.`;
+		incorrectTuned++;
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		    updateStats();
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
+		increaseDifficulty = 0;
+		difficulty = difficulty / diffChange;
+		setTimeout(followUp, roundDelay);
+	    }
+	    else if ((round === "sharporflat") && (sign === 1)) {
+		// Correct!
+		flash(green, buttonOne);
+		textContent.innerHTML = `Correct! Sharp by ${detuneAmount.toFixed(1)} cents`;
+		score++;
+		correctSharp++;
+		if (!wasIncorrect) {
+		    difficulty = difficulty * diffChange;
+		}
+		wasIncorrect = false;
+		updateScore();
+		setTimeout(nextRound, roundDelay);
+	    }
+	    else if ((round === "sharporflat") && (sign === -1)) {
+		// Incorrect!
+		flash(red, buttonOne);
+		textContent.innerHTML = `Incorrect. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
+		incorrectFlat++;
+		difficulty = difficulty / diffChange;
+		wasIncorrect = false; // Reset for next round.
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		    updateStats();
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
+		setTimeout(nextRound, roundDelay);
+	    }
+	});
+
+	const buttonTwo = document.getElementById("out-flat");
+	buttonTwo.addEventListener('click', () => {
+	// Button Two says "Out of Tune" or "Flat"
+	    stopAllAudio();
+	    if ((round === "inorout") && (inTune)) {
+		// Incorrect!
+		flash(red, buttonTwo);
+		textContent.innerHTML = `Incorrect. They are in tune.`;
+		incorrectTuned++;
+		increaseDifficulty = 0;
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		    updateStats();
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
+		setTimeout(nextRound, roundDelay);
+	    }
+	    else if ((round === "inorout") && (!inTune)) {
+		// Correct!
+		flash(green, buttonTwo);
+		textContent.innerHTML = `Correct! They are out of tune.`;
+		score++;
+		correctTuned++;
+		updateScore();
+		setTimeout(followUp, roundDelay);
+	    }
+	    else if ((round === "sharporflat") && (sign === 1)) {
+		// Incorrect!
+		flash(red, buttonTwo);
+		textContent.innerHTML = `Incorrect. Sharp by ${detuneAmount.toFixed(1)} cents`;
+		incorrectSharp++;
+		difficulty = difficulty / diffChange;
+		wasIncorrect = false; // Reset for next round.
+		if ((gamemode === "challenge") && (lives === 1)) {
+	    	    stopAllAudio();
+		    stopFollowUp = true;
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		    updateStats();
+		    setTimeout(() => showScreen("resultsScreen"), 2000);
+	    	    return;
+		} else if ((gamemode === "challenge") && (lives > 1)) {
+		    lives--;
+		    livesLeft.innerHTML = lives;
+		}
+		setTimeout(nextRound, roundDelay);
+	    }
+	    else if ((round === "sharporflat") && (sign === -1)) {
+		// Correct!
+		flash(green, buttonTwo);
+		textContent.innerHTML = `Correct. Flat by ${Math.abs(detuneAmount).toFixed(1)} cents`;
+		score++;
+		correctFlat++;
+		updateScore();
+		if (!wasIncorrect) {
+		    difficulty = difficulty * diffChange;
+		}
+		wasIncorrect = false;
+		setTimeout(nextRound, roundDelay);
+	    }
+	});
+
+// ---- Replay, Restart, Options button functions ----
+
+	// Allows user to replay the audio.
+	const repeatButton = document.getElementById("repeat-button");
+	repeatButton.addEventListener('click', () => {
+	    stopAllAudio();
+	    if (round === "inorout") {
+		playAudioBuffer(primaryBuffer);
+	    	playAudioBuffer(secondaryBuffer, detuneAmount);
+	    	playCount++;
+	    	const playCheck = playCount;
+	    	lightOn(primaryContainer);
+	    	lightOn(secondaryContainer);
+	    	setTimeout(() => {
+		    if(playCheck === playCount){
+		    	lightsOff();
+		    }
+	    	}, roundDuration * 1000);
+	    } else {
+	    	playAudioBuffer(primaryBuffer, 0, panLeft, followUpDuration);
+	    	playCount++;
+	    	const playCheck = playCount;
+  	    	lightsOff();
+	    	lightOn(primaryContainer);
+		if (stopFollowUp) return;
+	    	setTimeout(() => {
+		    if(playCount === playCheck) {
+			if (stopFollowUp) return;
+		    	lightsOff();
+		    	lightOn(secondaryContainer);
+		    	playAudioBuffer(secondaryBuffer, detuneAmount, panRight, followUpDuration);
+		    	setTimeout(() => {
+			    if(playCount === playCheck) {
+			    	lightsOff();
+			    }
+		    	}, followUpDuration * 1000);
+		    }	
+	    	}, followUpDuration * 1000);
+	    }
+	});
+
+
+	const optionsButton = document.getElementById("optionsButton");
+	optionsButton.addEventListener('click', () => {
+	    stopAllAudio();
+	    stopFollowUp = true;
+	    showScreen("menuScreen");
+	    isPaused = true;    
+	});
+
+	const pauseButton = document.getElementById("pauseButton");
+	pauseButton.addEventListener("click", () => {
+	    if (gamemode === "freeplay") {
+		// Finishes the Free Play game
+		stopAllAudio();
+		stopFollowUp = true;
+		updateStats();
+		showScreen("resultsScreen");
+		isPaused = true;
+		clearInterval(timerInterval);
+		timerInterval = null;
+	    } else if (gamemode === "timermode") {
+		// Restarts Timer Mode game
+		console.log(`pre timer=${timer} timerinterval=${timerInterval} ispaused=${isPaused}`);
+		stopAllAudio();
+		stopFollowUp = true;
+		score = 0;
+		updateScore();
+		resetStats();
+		timer = timerAmount;
+		updateTimerDisplay();
+		clearInterval(timerInterval);
+		timerInterval = null;
+		isPaused = false;
+		startTimer();
+		console.log(`post timer=${timer} timerinterval=${timerInterval} ispaused=${isPaused}`);
+		nextRound();
+	    } else {
+		// Restarts Challenge Mode game
+		stopAllAudio();
+		stopFollowUp = true;
+		score = 0;
+		updateScore();
+		resetStats();
+		lives = 3;
+		livesLeft.innerHTML = lives;
+		nextRound();
+	    }
+	});
+	
+	// Call startTimer();
+	const livesLeft = document.getElementById("livesLeft");
+	const timerDisplay = document.getElementById("timerDisplay");
+
+	let timer = 60;
+	let timerInterval = null;
+	let isPaused = false;
+
+// ||---------------------------- Menu Screen Functions --------------------------||
+
+	const backButton = document.getElementById("backButton");
+	backButton.addEventListener('click', () => {
+	    showScreen("gameControls");
+	    isPaused = false;
+	    stopFollowUp = false;
+	    if (requireNextRound) {
+		if (gamemode === "timermode") {
+		    timer = timerAmount;
+		    updateTimerDisplay();
+		}
+		score = 0;
+		updateScore();
+		requireNextRound = false;
+		nextRound();
+		backButton.innerHTML = "Back";
+		console.log(`gamemode = ${gamemode}`);
+	    }
+	});
+
+	// --- Select Instrument ---
+
+	const selectInstrumentDropdown = document.getElementById("selectInstrumentDropdown");
+	const instrumentKeys = Object.keys(instruments);
+	let activeInstrumentList = instrumentKeys;
+	let requireNextRound = false;
+
+	function populateInstrumentDropdown() {
+	    for (let i = 0; i < instrumentKeys.length; i++) {
+		const newOption = document.createElement("option");
+		const newInstrName = instrumentKeys[i];
+		newOption.innerHTML = displayName(newInstrName);
+		newOption.value = newInstrName;
+		selectInstrumentDropdown.appendChild(newOption);
+	    }
+	}
+
+	document.addEventListener("DOMContentLoaded", populateInstrumentDropdown);
+	selectInstrumentDropdown.addEventListener('input', () => {
+	    console.log(`${selectInstrumentDropdown.value}`);
+	    if (selectInstrumentDropdown.value === "all") {
+		activeInstrumentList = instrumentKeys;
+	    } else if (selectInstrumentDropdown.value === "brass") {
+		activeInstrumentList = Object.entries(instruments)
+		    .filter(([name, data]) => data.group.includes("brass"))
+		    .map(([name, _]) => name);
+	    } else if (selectInstrumentDropdown.value === "woodwind") {
+		activeInstrumentList = Object.entries(instruments)
+		    .filter(([name, data]) => data.group.includes("woodwind"))
+		    .map(([name, _]) => name);
+	    } else if (selectInstrumentDropdown.value === "high") {
+		activeInstrumentList = Object.entries(instruments)
+		    .filter(([name, data]) => data.group.includes("high"))
+		    .map(([name, _]) => name);
+	    } else if (selectInstrumentDropdown.value === "low") {
+		activeInstrumentList = Object.entries(instruments)
+		    .filter(([name, data]) => data.group.includes("low"))
+		    .map(([name, _]) => name);
+	    } else {
+	        activeInstrumentList = [selectInstrumentDropdown.value];
+	    }
+	    console.log(activeInstrumentList);
+	    requireNextRound = true;
+	    backButton.innerHTML = "New Round";
+	});
+
+	// --- Select Difficulty ---
+
+	const easyButton = document.getElementById("easyButton");
+	const mediumButton = document.getElementById("mediumButton");
+	const hardButton = document.getElementById("hardButton");
+	const difficulties = [35, 25, 15];
+	let difficulty = difficulties[1];
+	let rememberDifficulty = difficulties[1];
+
+	const difficultyButtons = document.querySelectorAll(".difficultyButtons");
+	const gamemodeButtons = document.querySelectorAll(".gamemodeButtons");
+	const intervalButtons = document.querySelectorAll(".intervalButtons");
+
+	function radioButton(button, group) {
+	    group.forEach((object) => {
+		object.style.backgroundColor = "#aaa";
+		
+	    });
+	    button.style.backgroundColor = "#5f5";
+	}
+
+	easyButton.addEventListener('click', () => {
+	    radioButton(easyButton, difficultyButtons);
+	    difficulty = difficulties[0];
+	    rememberDifficulty = difficulties[0];
+	    requireNextRound = true;
+	    backButton.innerHTML = "New Round";
+	});
+	mediumButton.addEventListener('click', () => {
+	    radioButton(mediumButton, difficultyButtons);
+	    difficulty = difficulties[1];
+	    rememberDifficulty = difficulties[1];
+	    requireNextRound = true;
+	    backButton.innerHTML = "New Round";
+	});
+	hardButton.addEventListener('click', () => {
+	    radioButton(hardButton, difficultyButtons);
+	    difficulty = difficulties[2];
+	    rememberDifficulty = difficulties[2];
+	    requireNextRound = true;
+	    backButton.innerHTML = "New Round";
+	});
+
+	// --- Select Game Mode ---
+
+	let gamemode = "timermode";
+	
+	const gamemodeText = document.getElementById("gamemodeText");
+	gamemodeText.innerHTML = "Timer";
+	const freeplayButton = document.getElementById("freeplayButton");
+	const timermodeButton = document.getElementById("timermodeButton");
+	const challengeButton = document.getElementById("challengeButton");
+
+	function showDisplay(displayId) {
+	    const displays = ["timerDisplay", "livesText"];
+	    displays.forEach((id) => {
+		document.getElementById(id).classList.add("hidden");
+	    });
+	    document.getElementById(displayId).classList.remove("hidden");
+	}
+	freeplayButton.addEventListener('click', () => {
+	    if (gamemode !== "freeplay") {
+		radioButton(freeplayButton, gamemodeButtons);
+	    	gamemode = "freeplay";
+		gamemodeText.innerHTML = "Free Play";
+		pauseButton.innerHTML = "Finish";
+		showDisplay("timerDisplay");
+		timer = 0;
+		updateTimerDisplay();
+		clearInterval(timerInterval);
+		timerInterval = null;
+		startTimer();
+	    	requireNextRound = true;
+	    	backButton.innerHTML = "New Round";
+	    }
+	});
+	timermodeButton.addEventListener('click', () => {
+	    if (gamemode !== "timermode") {
+		radioButton(timermodeButton, gamemodeButtons);
+		gamemode = "timermode";
+		gamemodeText.innerHTML = "Timer";
+		pauseButton.innerHTML = "Restart";
+		showDisplay("timerDisplay");
+		timer = timerAmount;
+		updateTimerDisplay();
+		clearInterval(timerInterval);
+		timerInterval = null;
+		startTimer();
+		console.log(`gamemode=${gamemode}, timer=${timer}`);
+		requireNextRound = true;
+	    	backButton.innerHTML = "New Round";
+	    }
+	});
+	let timerAmount = 60; // Used for Timer Gamemode
+	challengeButton.addEventListener('click', () => {
+	    if (gamemode !== "challenge") {
+		radioButton(challengeButton, gamemodeButtons);
+		gamemode = "challenge";
+		lives = 3;
+		gamemodeText.innerHTML = "Challenge";
+		pauseButton.innerHTML = "Restart";
+		showDisplay("livesText");
+		clearInterval(timerInterval);
+		timerInterval = null;
+		requireNextRound = true;
+	    	backButton.innerHTML = "New Round";
+		console.log(`gamemode = ${gamemode}`);
+	    }
+	});
+	let lives = 3; // 3 for testing, change to 5 later?
+
+
+// ----------- Select Intervals ---------
+	
+	const intervals = ["unison", "octave", "auto"]
+	let interval = intervals[2];
+
+	const unisonButton = document.getElementById("unisonButton");
+	unisonButton.addEventListener('click', () => {
+	    if (interval !== intervals[0]) {
+	    	backButton.innerHTML = "New Round";
+		radioButton(unisonButton, intervalButtons);
+		requireNextRound = true;
+	    	interval = intervals[0];
+	    }
+	    console.log(`interval = ${interval}`);
+	});
+	const octaveButton = document.getElementById("octaveButton");
+	octaveButton.addEventListener('click', () => {
+	    if (interval !== intervals[1]) {
+	    	backButton.innerHTML = "New Round";
+		radioButton(octaveButton, intervalButtons);
+		requireNextRound = true;
+	    	interval = intervals[1];
+	    }
+	    console.log(`interval = ${interval}`);
+	});
+	const autoInterval = document.getElementById("autoInterval");
+	autoInterval.addEventListener('click', () => {
+	    if (interval !== intervals[2]) {
+	    	backButton.innerHTML = "New Round";
+		radioButton(autoInterval, intervalButtons);
+		requireNextRound = true;
+	    	interval = intervals[2];
+	    }
+	    console.log(`interval = ${interval}`);
+	});
+	
+// ||------------------------------- Global Script Variables ----------------------------------||
+
+	const audioContext = new (window.AudioContext);
+	const textContent = document.getElementById("textContent");
+	const gameControls = document.getElementById("gameControls");
+	const scoreText = document.getElementById("score");
+	const primaryContainer = document.getElementById("primaryContainer");
+	const secondaryContainer = document.getElementById("secondaryContainer");
+	const instructions = document.getElementById("instructions");
+
+	let score = 0;
+	let round = "inorout";
+	let primary = null;
+	let secondary = null;
+	let primaryBuffer = null;
+	let secondaryBuffer = null;
+	let inTune = true;
+	let detuneAmount = 0;
+	let sign = 1;
+	let roundDuration = 2.5;
+	let followUpDuration = 2;
+	let panLeft = -.8;
+	let panRight = .8;
+	let activeSources = [];
+	let intervalType = null;
+	let playCount = 0;
+	let increaseDifficulty = 0;
+
+
+
+// ||---------------------------------------Function Definitions-------------------------------||
+
+    // ......Audio Playback Functions......
+
+	async function loadAudioBuffer(filePath) {
+  	    const response = await fetch(filePath);
+  	    const arrayBuffer = await response.arrayBuffer();
+  	    return await audioContext.decodeAudioData(arrayBuffer);
+	}
+
+	function playAudioBuffer(audioBuffer, detuneAmount = 0, panValue = 0, duration = roundDuration) {
+  	    const source = audioContext.createBufferSource();
+  	    source.buffer = audioBuffer;
+
+  	    const gainNode = audioContext.createGain();
+  	    const panner = audioContext.createStereoPanner();
+  	    panner.pan.value = panValue;
+
+  	    const detuneRatio = Math.pow(2, detuneAmount / 1200);
+  	    source.playbackRate.value = detuneRatio;
+
+  	    source.connect(panner).connect(gainNode).connect(audioContext.destination);
+
+  	    const now = audioContext.currentTime;
+  	    gainNode.gain.setValueAtTime(1, now);
+  	    gainNode.gain.setValueAtTime(1, now + duration);
+  	    gainNode.gain.linearRampToValueAtTime(0, now + duration + .5);
+
+  	    source.start(now);
+  	    source.stop(now + duration)
+
+  	    activeSources.push(source); // Tracks array of audio sources for stopAllAudio().
+	}
+
+	function stopAllAudio() {
+	    lightsOff();
+  	    activeSources.forEach(source => {
+    		try {
+      		    source.stop();
+    		} catch (e) {
+    		}
+  	    });
+  	    activeSources = [];  // Requires global variable let activeSources = [];
+	}
+
+    // ......Randomizing and Round Functions......
+
+    	function randomInstrument() {
+	    const name = activeInstrumentList[Math.floor(Math.random() * activeInstrumentList.length)];
+	    const instrument = instruments[name];
+	    return { instrument, name };
+	}
+
+    	function generateRandom() {
+     	    // Returns an object to be used as file path for loadAudioBuffer(filePath);
+	    const { instrument, name } = randomInstrument();
+	    const pitch = instrument.pitches[Math.floor(Math.random() * instrument.pitches.length)];
+	    return {
+	  	filePath: `tempaudio/${name}/${pitch}.mp3`,
+	  	name: name,
+	  	pitch: pitch,
+	    };
+    	}
+
+	function displayName(name) {
+      	    return name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+	}
+
+	function parseNote(input) {
+  	    const note = input.slice(0, -1); // assumes all notes have a 1-digit octave
+  	    const octave = parseInt(input.slice(-1), 10);
+  	    return { note, octave };
+	}
+
+	async function nextRound() {
+	    stopFollowUp = false;
+	    console.log(`difficulty = ${difficulty}, increase = ${increaseDifficulty}`);
+	    round = "inorout";
+	    instructions.innerHTML = "Question: Are the notes in tune or out of tune?";
+	    buttonOne.innerHTML = "In Tune";
+	    buttonTwo.innerHTML = "Out of Tune";
+	    inTune = Math.random() < 0.5 ? true : false;
+	    console.log(`Round = ${round}, inTune = ${inTune}`);
+	    if (difficulty < hardestDifficulty) hardestDifficulty = difficulty;
+	    if (inTune) {
+		detuneAmount = 0;
+	    } else {
+		sign = Math.random() < 0.5 ? 1 : -1;
+		detuneAmount = (sign * difficulty);
+	    }
+	    primary = generateRandom();
+	    primaryInstrumentName.innerHTML = displayName(primary.name);
+	    primaryInstrumentNote.innerHTML = primary.pitch;
+	    primaryBuffer = await loadAudioBuffer(primary.filePath);
+	    let newNote = null;
+	// Insert interval game option logic check here
+	    intervalType = interval;
+	    if (intervalType === intervals[2]) {
+	    	intervalType = Math.random() < 0.5 ? "octave" : "unison";
+	    }
+	    console.log(`intervalType = ${intervalType}`);
+	    if (intervalType === "octave") {
+	    // Searches for a new note in Octaves...
+		secondary = generateRandom();
+		let primaryInstrument = instruments[primary.name];
+		let secondaryInstrument = instruments[secondary.name];
+		const parsedNote = parseNote(primary.pitch);
+
+		if (primaryInstrument.octave === secondaryInstrument.octave) {
+		// The instruments are pitched in the same octave...
+		    const direction = Math.random() < .5 ? 1 : -1;
+		    const distances = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
+		    for (let i = 0; i < distances.length; i++) {
+			const testOctave = parsedNote.octave + (distances[i] * direction);
+			const candidate = parsedNote.note + testOctave;
+			if (secondaryInstrument.pitches.includes(candidate)) {
+			    newNote = candidate;
+			    break;
+			}
+		    }
+		} else {
+		// The instruments are pitched in different octaves already...
+		    let normalizedOctave = secondaryInstrument.octave - primaryInstrument.octave;
+		    let testOctave = parsedNote.octave + normalizedOctave;
+		    let candidate = parsedNote.note + testOctave;
+		    if (secondaryInstrument.pitches.includes(candidate)) {
+			newNote = candidate;
+		    } else {
+          	    	const direction = Math.random() < .5 ? 1 : -1;
+          	    	const distances = [1, -1, 2, -2, 3, -3, 4, -4];
+          	    	for (let i = 0; i < distances.length; i++) {
+	    		    testOctave = parsedNote.octave + (distances[i] * direction);
+	    		    candidate = parsedNote.note + testOctave;
+	    		    if (secondaryInstrument.pitches.includes(candidate)) {
+	      		    	newNote = candidate;
+	      		    	break;
+          	    	    }
+			}
+		    }
+		}
+	    } else {
+	    // Searches for a new note in Unison...
+		secondary = generateRandom();
+		newNote = primary.pitch;
+		let pitches = [];
+		let name = "";
+		let instrument = null;
+		while (!pitches.includes(primary.pitch)) {
+		    name = activeInstrumentList[Math.floor(Math.random() * activeInstrumentList.length)];
+		    instrument = instruments[name];
+		    pitches = instrument.pitches;
+		    secondary.name = name;
+		}
+	    }
+	    secondaryInstrumentName.innerHTML = displayName(secondary.name);
+	    secondaryInstrumentNote.innerHTML = newNote;	    
+	    const filePath = `tempaudio/${secondary.name}/${newNote}.mp3`;
+	    secondaryBuffer = await loadAudioBuffer(filePath);
+
+	    playAudioBuffer(primaryBuffer);
+	    // console.log(`${primary.filePath}`);
+	    playAudioBuffer(secondaryBuffer, detuneAmount);
+	    // console.log(`Secondary: ${secondary.name} ${newNote} ${detuneAmount}`);
+	    playCount++;
+	    const playCheck = playCount;
+	    lightOn(primaryContainer);
+	    lightOn(secondaryContainer);
+	    setTimeout(() => {
+		if(playCheck === playCount){
+		    lightsOff();
+		}
+	    }, roundDuration * 1000);
+	}
+
+	function followUp () {
+	    if (stopFollowUp) return;
+	    round = "sharporflat";
+	    instructions.innerHTML = "Question: Is the second note sharp or flat?";
+	    console.log(`Round = ${round} Sign = ${sign}`);
+	    buttonOne.innerHTML = "Sharp";
+	    buttonTwo.innerHTML = "Flat";
+
+	    playAudioBuffer(primaryBuffer, 0, panLeft, followUpDuration);
+	    playCount++;
+	    const playCheck = playCount;
+  	    lightsOff();
+	    lightOn(primaryContainer);
+	    setTimeout(() => {
+		if (stopFollowUp) return;
+		if (playCount === playCheck) {
+		    lightsOff();
+		    lightOn(secondaryContainer);
+		    playAudioBuffer(secondaryBuffer, detuneAmount, panRight, followUpDuration);
+		    setTimeout(() => {
+			if(playCount === playCheck) {
+			    lightsOff();
+			}
+		    }, followUpDuration * 1000);
+		}	
+	    }, followUpDuration * 1000);
+	}
+
+	function lightOn(container) {
+	    container.style.backgroundColor = "#090";
+	}
+
+	function lightsOff() {
+	    primaryContainer.style.backgroundColor = "#333";
+	    secondaryContainer.style.backgroundColor = "#333";
+	}
+
+	function updateTimerDisplay() {
+	    const minutes = String(Math.floor(timer / 60)).padStart(2, '0');
+	    const seconds = String(timer % 60).padStart(2, '0');
+	    timerDisplay.textContent = `${minutes}:${seconds}`;
+	}
+
+	function startTimer() {
+	    if (timerInterval) return; // Prevent multiple intervals
+	    timerInterval = setInterval(() => {
+	        if (!isPaused && gamemode === "freeplay") {
+	            timer++;
+	            updateTimerDisplay();
+	        } else if (!isPaused && (gamemode === "timermode")) {
+		    timer--;
+		    updateTimerDisplay();
+		    if (timer <= 0) {
+			stopAllAudio();
+			stopFollowUp = true;
+			isPaused = true;
+			updateStats();
+			showScreen("resultsScreen");
+		    }
+		}
+	    }, 1000);
+	}
+
+    </script>
+
+</body>
+</html>
