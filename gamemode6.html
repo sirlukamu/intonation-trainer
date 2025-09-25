@@ -4,7 +4,7 @@
 <!-- TODO: Keep track of wrong answers to display on results screen, replay button -->
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link rel="shortcut icon" href="/images/favicon.ico">
     <title>Gamemode v.6</title>
 
     <style>
@@ -652,7 +652,9 @@
 	const red = "#f33";
 	const roundDelay = 1500;
 	const buttonOne = document.getElementById("in-sharp");
+	let ableToPress = true;
 	buttonOne.addEventListener('click', () => {
+	  if (ableToPress) {
 	// Button One says "In Tune" or "Sharp"
 	    stopAllAudio();
 	    if ((round === "inorout") && (inTune)) {
@@ -726,10 +728,18 @@
 		}
 		setTimeout(nextRound, roundDelay);
 	    }
+	  ableToPress = false;
+	  console.log(`0 ableToPress = ${ableToPress}`);
+	  setTimeout(() => {
+	    ableToPress = true;
+	    console.log(`1 ableToPress = ${ableToPress}`)
+	  }, roundDelay);
+	  }
 	});
 
 	const buttonTwo = document.getElementById("out-flat");
 	buttonTwo.addEventListener('click', () => {
+	  if (ableToPress) {
 	// Button Two says "Out of Tune" or "Flat"
 	    stopAllAudio();
 	    if ((round === "inorout") && (inTune)) {
@@ -795,6 +805,13 @@
 		wasIncorrect = false;
 		setTimeout(nextRound, roundDelay);
 	    }
+	  ableToPress = false;
+	  console.log(`0 ableToPress = ${ableToPress}`);
+	  setTimeout(() => {
+	    ableToPress = true;
+	    console.log(`1 ableToPress = ${ableToPress}`)
+	  }, roundDelay);
+	  }
 	});
 
 // ---- Replay, Restart, Options button functions ----
@@ -802,6 +819,7 @@
 	// Allows user to replay the audio.
 	const repeatButton = document.getElementById("repeat-button");
 	repeatButton.addEventListener('click', () => {
+	  if (ableToPress) {
 	    stopAllAudio();
 	    if (round === "inorout") {
 		playAudioBuffer(primaryBuffer);
@@ -836,6 +854,7 @@
 		    }	
 	    	}, followUpDuration * 1000);
 	    }
+	  }
 	});
 
 
@@ -1149,7 +1168,7 @@
   	    const arrayBuffer = await response.arrayBuffer();
   	    return await audioContext.decodeAudioData(arrayBuffer);
 	}
-
+	const GAIN = 0.8;
 	function playAudioBuffer(audioBuffer, detuneAmount = 0, panValue = 0, duration = roundDuration) {
   	    const source = audioContext.createBufferSource();
   	    source.buffer = audioBuffer;
@@ -1164,8 +1183,8 @@
   	    source.connect(panner).connect(gainNode).connect(audioContext.destination);
 
   	    const now = audioContext.currentTime;
-  	    gainNode.gain.setValueAtTime(1, now);
-  	    gainNode.gain.setValueAtTime(1, now + duration);
+  	    gainNode.gain.setValueAtTime(GAIN, now);
+  	    gainNode.gain.setValueAtTime(GAIN, now + duration);
   	    gainNode.gain.linearRampToValueAtTime(0, now + duration + .5);
 
   	    source.start(now);
