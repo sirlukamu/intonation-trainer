@@ -594,18 +594,26 @@
 
 // ||-----------------------------Start Screen UI-----------------------------------||
 
+	let audioContext;
+
 	const startOptionsButton = document.getElementById("startOptionsButton");
 	startOptionsButton.addEventListener('click', () => {
-	    if (audioContext.state === 'suspended') audioContext.resume(); // see Notebook
+	    if (!audioContext) {
+		audioContext = new (window.AudioContext)();
+	    }
 	    backButton.innerHTML = "New Round";
 	    requireNextRound = true;
 	    showScreen("menuScreen");
 	});
 
+	// This needs to be declared inside a function for click because of iOS users.
+	// const audioContext = new (window.AudioContext);
 
 	const gameStart = document.getElementById("gameStart");
 	gameStart.addEventListener('click', () => {
-	    if (audioContext.state === 'suspended') audioContext.resume();
+	    if (!audioContext) {
+		audioContext = new (window.AudioContext)();
+	    }
 	    showScreen("gameControls")
 	    isPaused = false;
 	    stopFollowUp = false;
@@ -1131,7 +1139,6 @@
 	
 // ||------------------------------- Global Script Variables ----------------------------------||
 
-	const audioContext = new (window.AudioContext);
 	const textContent = document.getElementById("textContent");
 	const gameControls = document.getElementById("gameControls");
 	const scoreText = document.getElementById("score");
