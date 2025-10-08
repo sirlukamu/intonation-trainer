@@ -1,74 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Test Note Picker 2</title>
-    <script src="datacopy.js"></script>
-    <!-- using "datacopy.js" until all files are completed -->
+    <script src="data.js"></script>
 </head>
 <body style="margin-left: 20px">
-  <div>
-    <h1 style="margin-left: 20px">Audio Test</h1>
-    <ol>
-      <li>Choose instruments from the drop-down menu.</li>
-      <li>Choose a pitch from the next drop-down menu.</li>
-      <li>Select a value between -50 and 50 to detune.</li>
-      <li>Use the buttons below to hear how it sounds.</li>
-    </ol> 
-    <p> "Play Both" first, then "Follow Up" to hear individually. </p>
-    <h2>Choose your instruments and notes:</h2>
-    <select id="primary-instrument" title="Primary Instrument"></select>
-    <select id="primary-note" title="Primary Note"></select>
+    <div>
+    	<h1 style="margin-left: 20px">Audio Test</h1>
+	<button id="audioContextButton" style="padding: 10px">Click Here First To Enable Sound!</button>
+    	<ol>
+      	    <li>Choose instruments from the drop-down menu.</li>
+      	    <li>Choose a pitch from the next drop-down menu.</li>
+      	    <li>Select a value between -50 and 50 to detune.</li>
+      	    <li>Use the buttons below to hear how it sounds.</li>
+    	</ol> 
+    	<p> "Play Both" first, then "Follow Up" to hear individually. </p>
+    	<h2>Choose your instruments and notes:</h2>
 
-    <select id="secondary-instrument" title="Secondary Instrument"></select>
-    <select id="secondary-note" title="Secondary Note"></select>
+    	<select id="primary-instrument" title="Primary Instrument"></select>
+    	<select id="primary-note" title="Primary Note"></select>
+    	<select id="secondary-instrument" title="Secondary Instrument"></select>
+    	<select id="secondary-note" title="Secondary Note"></select>
 
-    <input type="range" id="detune-slider" min="-50" max="50" value="0" oninput="detuneOutput.value = this.value">
-    <span>cents: <output id="detuneOutput">0</output></span>
+    	<input type="range" id="detune-slider" min="-50" max="50" value="0" oninput="detuneOutput.value = this.value">
+    	<span>cents: <output id="detuneOutput">0</output></span>
 
-  <div style="margin-top: 10px">
-    <button id="playPrimary" style="margin-right: 50px">Play Primary</button>
-    <button id="playSecondary" style="margin-right: 30px">Play Secondary</button>
-    <button id="playBoth">Play Both</button>
-    <button id="followUp">Follow Up</button>
-  </div>
-    <input type="range" id="pan-slider" min="0" max="100" value="80" oninput="panOutput.value = this.value">
-    <span>Pan L/R: <output id="panOutput">80</output>%</span>
-  </div>
-  <p> NOTE: Testing to see: </p>
+  	<div style="margin-top: 10px">
+    	    <button id="playPrimary" style="margin-right: 50px">Play Primary</button>
+    	    <button id="playSecondary" style="margin-right: 30px">Play Secondary</button>
+    	    <button id="playBoth">Play Both</button>
+    	    <button id="followUp">Follow Up</button>
+  	</div>
+
+    	<input type="range" id="pan-slider" min="0" max="100" value="80" oninput="panOutput.value = this.value">
+    	<span>Pan L/R: <output id="panOutput">80</output>%</span>
+    </div>
+    <p> NOTE: Testing to see: </p>
     <ol>
 	<li> Volume/balance of different instrument/pitch combinations. </li>
 	<li> Best amount of panning to use? Speaker issues?</li>
 	<li> "Difficulty Level" - how many cents out of tune, especially in octaves.</li>
     </ol>
-
+    <a href="/gamemode6.html">Back to Game Mode</a>
     <script>
-    async function playAudio(audioBuffer, detuneAmount) {
-  	const source = audioContext.createBufferSource();
-  	source.buffer = audioBuffer;
-  	const detuneRatio = Math.pow(2, detuneAmount / 1200);
-  	source.playbackRate.value = detuneRatio;
-  	source.connect(audioContext.destination);
-  	source.start();
-    }
+// |------------------------- Audio Playback Functions --------------------|
 
-    //Select a pitch that is in octaves with generateBtn's pitch
-    function parseNote(input) {
-	// .slice is a method that returns part of a string. (0, -1) starts at 0th char,
-	// and cuts off the last char. (-1) returns the last char only.
-	// parseInt() is a function that turns a string into an int. 10 specifies base 10.
-  	const note = input.slice(0, -1); // assumes all notes have a 1-digit octave
-  	const octave = parseInt(input.slice(-1), 10);
-  	return { note, octave };
-    }
+    let audioContext = null;
+    let audioBuffer = null;
+    let activeSources = [];
 
-    // Defines loadAudioBuffer function
     async function loadAudioBuffer(filePath) {
   	const response = await fetch(filePath);
   	const arrayBuffer = await response.arrayBuffer();
   	return await audioContext.decodeAudioData(arrayBuffer);
     }
 
-    // Defines playAudioBuffer function
     function playAudioBuffer(audioBuffer, detuneAmount = 0, panValue = 0, duration = 4) {
   	const source = audioContext.createBufferSource();
   	source.buffer = audioBuffer;
@@ -102,7 +89,7 @@
     	    } catch (e) {
     	    }
     	});
-    activeSources = [];
+    	activeSources = [];
     }
 
     async function playPrimary () {
@@ -126,23 +113,7 @@
   	playAudioBuffer(secondaryBuffer, detuneAmount, panAmount);
     }
 
-    function randomInstrument() {
-	const keys = Object.keys(instruments);
-	const name = keys[Math.floor(Math.random() * keys.length)];
-	const instrument = instruments[name];
-	return { instrument, name };
-	}
-
-    function generateRandom() {
-	// Returns an object to be used as file path for loadAudioBuffer(filePath);
-	const { instrument, name } = randomInstrument();
-	const pitch = instrument.pitches[Math.floor(Math.random() * instrument.pitches.length)];
-	return {
-	    filePath: `./audio/${name}/${pitch}.mp3`,
-	    name: name,
-	    pitch: pitch,
-	};
-    }
+// |---------------- Dropdown Menu Functions -----------------|
 
     function populateInstrumentDropdown(dropdownId) {
 	const dropdown = document.getElementById(dropdownId);
@@ -171,12 +142,12 @@
 	}
     }
 
-    // Populate Instrument and Note Dropdown Menus
     populateInstrumentDropdown("primary-instrument");
     populateInstrumentDropdown("secondary-instrument");
     populateNoteDropdown("primary-instrument", "primary-note");
     populateNoteDropdown("secondary-instrument", "secondary-note");
 
+    // If user selects a different instrument, update the related note choices.
     document.getElementById("primary-instrument").addEventListener("change", () => {
 	populateNoteDropdown("primary-instrument", "primary-note");
     });
@@ -184,10 +155,16 @@
 	populateNoteDropdown("secondary-instrument", "secondary-note");
     });
 
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    console.log("Channel count:", audioContext.destination.channelCount);
-    let audioBuffer = null;
-    let activeSources = [];
+
+
+// |---------------- Button Event Listeners -----------------|
+
+    document.getElementById("audioContextButton").addEventListener("click", () => {
+	if (!audioContext) {
+	    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    	    console.log("Channel count:", audioContext.destination.channelCount);
+	}
+    });
 
     document.getElementById("playPrimary").addEventListener("click", () => {
 	stopAllAudio();
@@ -202,14 +179,6 @@
 	playPrimary();
 	playSecondary();
     });
-
-    async function fetchAndDecode(filePath) {
-	const response = await fetch(filePath);
-	const arrayBuffer = await response.arrayBuffer();
-	const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-	console.log(`Fetched ${filePath}`);
-	return audioBuffer;
-    }
 
     document.getElementById("followUp").addEventListener('click', async () => {
 	stopAllAudio();
@@ -233,6 +202,13 @@
 	    }, duration * 1000);
 	});
 
+    async function fetchAndDecode(filePath) {
+	const response = await fetch(filePath);
+	const arrayBuffer = await response.arrayBuffer();
+	const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+	console.log(`Fetched ${filePath}`);
+	return audioBuffer;
+    }
 
     </script>
 </body>

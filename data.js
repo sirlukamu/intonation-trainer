@@ -1,5 +1,5 @@
 const instruments = {
-  /*"piccolo": {
+  "piccolo": {
     octave: 2,
     group: "woodwind",
     pitches: [
@@ -7,7 +7,6 @@ const instruments = {
       "C6", "Db6", "D6", "Eb6", "E6", "F6", "Gb6", "G6", "Ab6", "A6", "Bb6", "B6", 
       "C7", "Db7", "D7", "Eb7", "E7", "F7"]
   },
-  Piccolo not included in first version. */
   "flute": {
     octave: 1,
     group: "woodwind",

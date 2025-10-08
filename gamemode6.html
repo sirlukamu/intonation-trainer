@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
-<!-- TODO: Buttons flash red or green to indicate correct answers -->
+
+<!-- TODO: Link the experimental audio to main program: new UI screen and functions -->
 <!-- TODO: Keep track of wrong answers to display on results screen, replay button -->
+<!-- TODO: Automatic playback option for wrong answers -->
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/images/favicon.ico">
@@ -64,7 +67,7 @@
 	    flex-direction: column;
 	    flex-wrap: wrap;
 	    justify-content: center;
-	    transform: translateY(20%);
+	    transform: translateY(10%);
 	    align-items: center;
 	    margin: auto;
 	}
@@ -231,6 +234,8 @@
     </style>
 
     <script>
+// ||----------------------------- Instrument Object Data -------------------------------||
+
 	const instruments = {
 	    "piccolo": {
     		octave: 2,
@@ -378,6 +383,7 @@
 
 	<div id="welcomeScreen" class="startbuttons">
 	    <div id="welcomeScreenText">
+		<a href="/audiotest2.html">Experiment/Learn</a>
 		<p>How to play:</p>
 		<p>Round One: Are the notes in tune or out of tune?</p>
 		<p>Round Two: Is the second note sharp or flat compared to the first note?</p>
@@ -741,7 +747,7 @@
 	  setTimeout(() => {
 	    ableToPress = true;
 	    console.log(`1 ableToPress = ${ableToPress}`)
-	  }, roundDelay);
+	  }, roundDelay - 1);
 	  }
 	});
 
@@ -818,7 +824,7 @@
 	  setTimeout(() => {
 	    ableToPress = true;
 	    console.log(`1 ableToPress = ${ableToPress}`)
-	  }, roundDelay);
+	  }, roundDelay - 1);
 	  }
 	});
 
@@ -918,7 +924,7 @@
 	const livesLeft = document.getElementById("livesLeft");
 	const timerDisplay = document.getElementById("timerDisplay");
 
-	let timer = 60;
+	let timer = 120;
 	let timerInterval = null;
 	let isPaused = false;
 
@@ -1082,7 +1088,7 @@
 	    	backButton.innerHTML = "New Round";
 	    }
 	});
-	let timerAmount = 60; // Used for Timer Gamemode
+	let timerAmount = 120; // Used for Timer Gamemode
 	challengeButton.addEventListener('click', () => {
 	    if (gamemode !== "challenge") {
 		radioButton(challengeButton, gamemodeButtons);
@@ -1325,9 +1331,9 @@
 	    const filePath = `tempaudio/${secondary.name}/${newNote}.mp3`;
 	    secondaryBuffer = await loadAudioBuffer(filePath);
 
-	    playAudioBuffer(primaryBuffer);
+	    playAudioBuffer(primaryBuffer, 0, panLeft);
 	    // console.log(`${primary.filePath}`);
-	    playAudioBuffer(secondaryBuffer, detuneAmount);
+	    playAudioBuffer(secondaryBuffer, detuneAmount, panRight);
 	    // console.log(`Secondary: ${secondary.name} ${newNote} ${detuneAmount}`);
 	    playCount++;
 	    const playCheck = playCount;
@@ -1342,6 +1348,8 @@
 
 	function followUp () {
 	    if (stopFollowUp) return;
+	    ableToPress = false;
+	    console.log(`2 ableToPress=${ableToPress}`);
 	    round = "sharporflat";
 	    instructions.innerHTML = "Question: Is the second note sharp or flat?";
 	    console.log(`Round = ${round} Sign = ${sign}`);
@@ -1355,6 +1363,8 @@
 	    lightOn(primaryContainer);
 	    setTimeout(() => {
 		if (stopFollowUp) return;
+		ableToPress = true;
+		console.log(`3 ableToPress=${ableToPress}`);
 		if (playCount === playCheck) {
 		    lightsOff();
 		    lightOn(secondaryContainer);
